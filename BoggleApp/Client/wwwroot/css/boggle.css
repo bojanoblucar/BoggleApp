@@ -1,0 +1,11 @@
+﻿.boggle-container {
+    height: 90vh;
+}
+
+.gameboard {
+    background-color: #00ff54;
+}
+
+.infoboard {
+    background-color: green;
+}

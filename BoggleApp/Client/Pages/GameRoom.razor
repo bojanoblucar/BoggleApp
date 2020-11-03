@@ -1,0 +1,41 @@
+﻿@page "/room/{roomId}"
+@inherits GameRoomBase
+
+
+<div class="boggle-container row">
+    <div class="gameboard col-md-8">
+        <p>Hello @username. Wellcome to room {@room?.Name}</p><br />
+        <p>@message</p><br />
+
+        @foreach (var u in usersInGroup)
+        {
+            <p>@u.Username</p><br />
+        }
+
+        @if (letters != null)
+        {
+            for (int i = 0; i < 16; i++)
+            {
+                <span>@letters[i]</span>
+                if ((i + 1) % 4 == 0)
+                {
+                    <br />
+                }
+            }
+        }
+
+        <br />
+
+        <button @onclick="Shuffle">Shuffle</button>
+    </div>
+    <div class="infoboard col-md-4">
+
+    </div>
+</div>
+
+
+@code
+{
+    
+
+}

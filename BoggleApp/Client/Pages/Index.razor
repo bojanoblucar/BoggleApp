@@ -1,0 +1,172 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+@inject ISessionStorage sessionStorage
+
+    <div class="d-flex justify-content-center">
+        <form class="form-signin col-md-4">
+            <img class="mb-4" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt=""
+                 width="72" height="72" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+            @if (!alreadyAssigned)
+            {
+                <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+                <label for="inputUsername" class="mb-2 sr-only">Uername</label>
+                <input type="text" id="inputUsername"
+                       class="mb-2 form-control" placeholder="Username" required="" autofocus="" autocomplete="off"
+                       @bind="@Username"
+                       @bind:event="oninput">
+            }
+            else
+            {
+                <h1 class="h3 mb-3 font-weight-normal">Hello @user?.Username</h1>
+            }
+
+        <div class="d-flex justify-content-center">
+                <select class="mb-2 mr-2 form-control" @bind="@SelectedRoom" disabled="@isRoomselectionDisabled">
+                    <option value="-1">Select room</option>
+                    @if (rooms != null)
+                    {
+                        @foreach (var r in rooms)
+                        {
+                            <option value="@r.Id">@r.Name</option>
+                        }
+                    }
+                </select>
+
+            <button  type="button" class="btn btn-sm btn-outline-primary" style="height:fit-content" @onclick="async() => await InitializeRooms()">
+                <span class="oi oi-reload" aria-hidden="true" style="margin-top:7px;"></span>
+            </button>
+        </div>
+
+            <p class="mb-2 font-weight-normal" style="text-align:center">or create new</p>
+            <label for="inputNewRoom" class="mb-2 sr-only">Uername</label>
+            <input type="text" id="inputNewRoom"
+                   class="mb-2 form-control" placeholder="Room name" autocomplete="off"
+                   @bind="@NewRoom"
+                   @bind:event="oninput">
+
+            <button class="btn btn-lg btn-success btn-block" type="button"
+                    @onclick="JoinGame" disabled="@isJoinRoomButtonDisabled">Join game</button>
+        </form>
+     </div>
+
+
+@code
+{
+    string username;
+    string newRoom;
+    string selectedRoom = "-1";
+    bool alreadyAssigned;
+    bool isRoomselectionDisabled = false;
+    bool isJoinRoomButtonDisabled = true;
+
+    public string NewRoom
+    {
+        get => newRoom;
+        set
+        {
+            newRoom = value;
+            isRoomselectionDisabled = !string.IsNullOrEmpty(newRoom);
+            OnFormDataChange();
+        }
+    }
+
+    public string Username
+    {
+        get => username;
+        set
+        {
+            username = value;
+            OnFormDataChange();
+        }
+    }
+
+    public string SelectedRoom
+    {
+        get => selectedRoom;
+        set
+        {
+            selectedRoom = value;
+            OnFormDataChange();
+        }
+    }
+
+    UserViewModel user = new UserViewModel();
+
+    IEnumerable<RoomViewModel> rooms = new List<RoomViewModel>();
+
+
+
+    [CascadingParameter] HubConnection HubConnection { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        HubConnection.On<string>("OnRoomJoin", (guid) =>
+        {
+            NavigationManager.NavigateTo($"room/{guid}");
+        });
+
+
+        user = await sessionStorage.GetItemModified<UserViewModel>("username");
+        Username = user?.Username;
+        alreadyAssigned = user != null;
+
+        await InitializeRooms();
+        //selectedRoom = rooms.First().Id;
+
+    }
+
+    private async Task InitializeRooms()
+    {
+        rooms = await Http.GetFromJsonAsync<IEnumerable<RoomViewModel>>("game/rooms");
+    }
+
+    public async Task JoinGame()
+    {
+        if(!alreadyAssigned)
+        {
+            var response = await Http.PostAsJsonAsync("game/user", username);
+            if (response.IsSuccessStatusCode)
+            {
+                user = await response.Content.ReadFromJsonAsync<UserViewModel>();
+                await sessionStorage.SetItem<UserViewModel>("username", user);
+            }
+
+        }
+
+        var room = await GetRoom();
+        await JoinRoom(user.Id, room.Id);
+    }
+
+    Task JoinRoom(string username, string roomId) => HubConnection.SendAsync("JoinRoom", username, roomId);
+
+    private async Task<RoomViewModel> GetRoom()
+    {
+        if(selectedRoom == "-1")
+        {
+            if (!string.IsNullOrEmpty(newRoom))
+            {
+                var response = await Http.PostAsJsonAsync("game/create", newRoom);
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<RoomViewModel>();
+                }
+            }
+        }
+        else
+        {
+            return await Task.FromResult(rooms.Where(r => r.Id == selectedRoom).Single());
+        }
+
+        return null;
+    }
+
+
+    public void OnFormDataChange()
+    {
+        isJoinRoomButtonDisabled = string.IsNullOrEmpty(Username) ||
+            (SelectedRoom == "-1" && string.IsNullOrEmpty(NewRoom));
+        StateHasChanged();
+    }
+
+}
