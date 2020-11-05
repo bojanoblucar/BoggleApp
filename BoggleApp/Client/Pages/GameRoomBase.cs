@@ -5,6 +5,7 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using BlazorBrowserStorage;
 using BoggleApp.Client.Extensions;
+using BoggleApp.Client.Shared;
 using BoggleApp.Shared.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -21,10 +22,6 @@ namespace BoggleApp.Client.Pages
 
         [Parameter] public string RoomId { get; set; }
 
-        protected string[] letters;
-
-        protected bool openRow = true;
-
         protected string message;
 
         protected string username = string.Empty;
@@ -37,15 +34,10 @@ namespace BoggleApp.Client.Pages
 
         [CascadingParameter] public HubConnection HubConnection { get; set; }
 
+        protected BoggleBoard BoggleBoard { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
-
-            HubConnection.On<string[]>("ReceiveShuffled", (message) =>
-            {
-                letters = message;
-                StateHasChanged();
-            });
-
             HubConnection.On<string>("UserJoined", (msg) =>
             {
                 message = msg;
@@ -86,7 +78,10 @@ namespace BoggleApp.Client.Pages
             }
         }
 
-        public Task Shuffle() => HubConnection.SendAsync("Shuffle", RoomId);
+        public Task Shuffle()
+        {
+            return BoggleBoard.Shuffle();
+        }
 
         public Task UsersInRoom() => HubConnection.SendAsync("UsersInRoom", RoomId);
 
@@ -97,13 +92,6 @@ namespace BoggleApp.Client.Pages
         public Task<HttpResponseMessage> GetRoom(string userId, string roomId)
         {
             return Http.GetAsync($"game?user={userId}&roomId={roomId}");
-        }
-
-        public string[] GetBoardRow(int rowNumber)
-        {
-            string[] result = new string[4];
-            Array.Copy(letters, rowNumber * 4, result, 0, 4);
-            return result;
         }
     }
 }
