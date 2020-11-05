@@ -23,6 +23,8 @@ namespace BoggleApp.Client.Pages
 
         protected string[] letters;
 
+        protected bool openRow = true;
+
         protected string message;
 
         protected string username = string.Empty;
@@ -97,5 +99,11 @@ namespace BoggleApp.Client.Pages
             return Http.GetAsync($"game?user={userId}&roomId={roomId}");
         }
 
+        public string[] GetBoardRow(int rowNumber)
+        {
+            string[] result = new string[4];
+            Array.Copy(letters, rowNumber * 4, result, 0, 4);
+            return result;
+        }
     }
 }

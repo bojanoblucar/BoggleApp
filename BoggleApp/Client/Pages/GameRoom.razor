@@ -12,17 +12,23 @@
             <p>@u.Username</p><br />
         }
 
+    <div class="row board justify-content-center">
         @if (letters != null)
         {
-            for (int i = 0; i < 16; i++)
+            @for (int i = 0; i < 4; i++)
             {
-                <span>@letters[i]</span>
-                if ((i + 1) % 4 == 0)
+                <div class="row">
+                @foreach (var letter in GetBoardRow(i))
                 {
-                    <br />
+                    <div class="dice">
+                        <span class="dice-value">@letter</span>
+                    </div>
                 }
+                </div>
             }
         }
+    </div>
+
 
         <br />
 
@@ -36,6 +42,13 @@
 
 @code
 {
-    
+    string OpenRow()
+    {
+        return @"<div class=""row"">";
+    }
 
+    string CloseRow()
+    {
+        return "</div>";
+    }
 }
