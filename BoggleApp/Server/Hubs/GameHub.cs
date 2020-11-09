@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Timers;
 using AutoMapper;
 using BoggleApp.Shared;
+using BoggleApp.Shared.Enums;
 using BoggleApp.Shared.Repositories;
 using BoggleApp.Shared.ViewModels;
 using Microsoft.AspNetCore.SignalR;
 
 namespace BoggleApp.Server.Hubs
-{
+{      
     public class GameHub : Hub
     { 
         private readonly IRoomRepository roomRepository;
@@ -27,13 +29,21 @@ namespace BoggleApp.Server.Hubs
             await Clients.All.SendAsync("ReceiveMessage", user, game);
         }
 
-
         public async Task Shuffle(string roomId)
         {
             var room = roomRepository.GetRoomById(roomId);
-            var shuffled = room.ShuffleBoard();
 
-            await Clients.Group(roomId).SendAsync("ReceiveShuffled", shuffled);
+            var shuffled = room.ShuffleBoard();            
+
+            if (room.GameStatus == RoomStatus.Initialized)
+            {
+                await Clients.Group(roomId).SendAsync("ReceiveShuffled", shuffled, room.GameStatus);
+
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("ReceiveShuffled", shuffled, room.GameStatus);
+            }
         }
 
         public async Task JoinRoom(string userId, string roomId)
@@ -90,6 +100,27 @@ namespace BoggleApp.Server.Hubs
             await Clients.Group(room.Id).SendAsync("UserLeft", $"{user.Username} has left the room.");
 
             await Clients.Group(room.Id).SendAsync("UsersInRoom", mapper.Map<IEnumerable<UserViewModel>>(room.Users));
+        }
+
+        public async Task Countdown(string roomId)
+        {
+            int remained = 3 * 60;
+            while(remained >= 0)
+            {                
+                await Task.Delay(1000);
+  
+                Console.WriteLine(remained);
+                await Clients.Group(roomId).SendAsync("CountdownEllapsed", remained.ToString());
+                remained -= 1;
+            }
+            
+        }
+
+
+        public void CountDownElapsed(int remained, string roomId)
+        {
+            Console.WriteLine(remained);
+            Clients.Group(roomId).SendAsync("CountdownEllapsed", remained.ToString());
         }
     }
 }

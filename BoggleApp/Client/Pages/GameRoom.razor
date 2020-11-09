@@ -2,27 +2,31 @@
 @inherits GameRoomBase
 
 
-<div class="boggle-container row">
-    <div class="gameboard col-md-8">
-        <p>Hello @username. Wellcome to room {@room?.Name}</p><br />
-        <p>@message</p><br />
+    <div class="boggle-container row">
+        <div class="gameboard col-md-9">
+            <p>Hello @username. You are in room @room?.Name</p><br />
+            <p>@message</p><br />
+            @if(room?.GameStatus != BoggleApp.Shared.Enums.RoomStatus.Initialized)
+            {
+                <p>New game starting in:</p>
+            }
+            <p>@time</p>
 
-        @foreach (var u in usersInGroup)
+            <BoggleBoard @ref="BoggleBoard" RoomId="@RoomId"></BoggleBoard>
+
+
+            <br />
+
+            <button class="button button-primary" type="button" @onclick="async() => await Shuffle()">Shuffle</button>
+        </div>
+        <div class="infoboard col-md-3">
+        <p>Users currently in room:</p>
+        @foreach(var user in usersInGroup)
         {
-            <p>@u.Username</p><br />
+             <div>@user.Username</div>
         }
-
-    <BoggleBoard @ref="BoggleBoard" RoomId="@RoomId"></BoggleBoard>
-
-
-        <br />
-
-        <button class="button button-primary" type="button" @onclick="Shuffle">Shuffle</button>
     </div>
-    <div class="infoboard col-md-4">
-
     </div>
-</div>
 
 
 @code

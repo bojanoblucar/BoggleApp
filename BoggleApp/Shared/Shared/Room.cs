@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Timers;
+using BoggleApp.Shared.Enums;
 using BoggleApp.Shared.Model;
+using BoggleApp.Shared.Shared;
 
 namespace BoggleApp.Shared
 {
@@ -11,16 +16,21 @@ namespace BoggleApp.Shared
 
         public List<User> Users { get; private set; }
 
-        public Room(string name)
+        public string[] CurrentSetup { get; set; }
+
+        public Room(string name, IGameTicker gameTicker)
         {
             Name = name;
+            this.gameTicker = gameTicker;
             _guid = Guid.NewGuid();
 
             _board = new Board(new GameSetup());
-            Users = new List<User>();
+            Users = new List<User>();   
         }
 
         private Guid _guid;
+        private readonly IGameTicker gameTicker;
+        
 
         public string Id => _guid.ToString();
         public string Name { get; }
@@ -48,14 +58,22 @@ namespace BoggleApp.Shared
 
         public string[] ShuffleBoard()
         {
-            var newSetup = _board.Shuffle();
-            Notify(newSetup);
-            return newSetup;
+            if (GameStatus == RoomStatus.Initialized)
+            {
+                CurrentSetup = _board.Shuffle();
+                GameStatus = RoomStatus.PlayMode;
+                StartTimer();
+            }
+                           
+            return CurrentSetup;
         }
 
-        public void Notify(string [] newSetup)
+        private void StartTimer()
         {
-            //notify each user of new board gameplay
+            gameTicker.UpdateTimeLeft(this);
         }
+
+
+        public RoomStatus GameStatus { get; set; } = RoomStatus.Initialized;
     }
 }

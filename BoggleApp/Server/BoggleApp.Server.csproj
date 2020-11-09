@@ -18,5 +18,6 @@
   <ItemGroup>
     <Folder Include="Hubs\" />
     <Folder Include="Profiles\" />
+    <Folder Include="Helpers\" />
   </ItemGroup>
 </Project>

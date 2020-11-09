@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using System.Timers;
 using BlazorBrowserStorage;
 using BoggleApp.Client.Extensions;
 using BoggleApp.Client.Shared;
@@ -25,6 +26,8 @@ namespace BoggleApp.Client.Pages
         protected string message;
 
         protected string username = string.Empty;
+
+        protected string time = string.Empty;
 
         protected UserViewModel user = null;
 
@@ -57,6 +60,11 @@ namespace BoggleApp.Client.Pages
                 StateHasChanged();
             });
 
+            HubConnection.On<string>("TimeLeft", timeRemained =>
+            {
+                WriteRemainingTime(int.Parse(timeRemained));
+            });
+
             user = await SessionStorage.GetItemModified<UserViewModel>("username");
             username = user?.Username;
 
@@ -74,13 +82,20 @@ namespace BoggleApp.Client.Pages
 
                 room = await response.Content.ReadFromJsonAsync<RoomViewModel>();
 
+                if (room.GameStatus == BoggleApp.Shared.Enums.RoomStatus.PlayMode)
+                {
+                    BoggleBoard.Peek(room);
+                }
+
                 await UsersInRoom();
+
+                StateHasChanged();
             }
         }
 
-        public Task Shuffle()
+        public async Task Shuffle()
         {
-            return BoggleBoard.Shuffle();
+            await BoggleBoard.Shuffle();
         }
 
         public Task UsersInRoom() => HubConnection.SendAsync("UsersInRoom", RoomId);
@@ -92,6 +107,15 @@ namespace BoggleApp.Client.Pages
         public Task<HttpResponseMessage> GetRoom(string userId, string roomId)
         {
             return Http.GetAsync($"game?user={userId}&roomId={roomId}");
+        }
+
+        public void WriteRemainingTime(int timeRemained)
+        {
+            TimeSpan times = TimeSpan.FromSeconds(timeRemained);
+
+            time = times.ToString(@"mm\:ss");
+
+            StateHasChanged();
         }
     }
 }

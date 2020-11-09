@@ -9,6 +9,8 @@ using System.Linq;
 using BoggleApp.Server.Hubs;
 using BoggleApp.Shared.Repositories;
 using AutoMapper;
+using BoggleApp.Shared.Shared;
+using BoggleApp.Server.Helpers;
 
 namespace BoggleApp.Server
 {
@@ -37,6 +39,7 @@ namespace BoggleApp.Server
 
             services.AddSingleton<IRoomRepository, RoomRepository>();
             services.AddSingleton<IUsersRepository, UsersRepository>();
+            services.AddTransient<IGameTicker, GameTicker>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

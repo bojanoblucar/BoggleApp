@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using BoggleApp.Shared.Enums;
+using BoggleApp.Shared.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -15,14 +17,27 @@ namespace BoggleApp.Client.Shared
 
         protected override void OnInitialized()
         {
-            HubConnection.On<string[]>("ReceiveShuffled", (message) =>
+            HubConnection.On<string[], RoomStatus>("ReceiveShuffled", (message, gameStatus) =>
             {
                 letters = message;
                 StateHasChanged();
+
+                    //OnShuffled?.Invoke();
+                
+                Console.WriteLine(gameStatus);
             });
         }
 
         public Task Shuffle() => HubConnection.SendAsync("Shuffle", RoomId);
+
+        public void Peek(RoomViewModel room)
+        {
+            if (room.GameStatus == RoomStatus.PlayMode)
+            {
+                letters = room.CurrentSetup;
+                StateHasChanged();
+            }
+        }
 
         protected string[] GetBoardRow(int rowNumber)
         {
@@ -30,5 +45,7 @@ namespace BoggleApp.Client.Shared
             Array.Copy(letters, rowNumber * 4, result, 0, 4);
             return result;
         }
+
+        //public Action OnShuffled { get; set; }
     }
 }

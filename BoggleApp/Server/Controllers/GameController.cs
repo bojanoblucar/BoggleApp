@@ -6,6 +6,7 @@ using AutoMapper;
 using BoggleApp.Server.Hubs;
 using BoggleApp.Shared;
 using BoggleApp.Shared.Repositories;
+using BoggleApp.Shared.Shared;
 using BoggleApp.Shared.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -34,9 +35,9 @@ namespace BoggleApp.Server.Controllers
 
 
         [HttpPost("create")]
-        public ActionResult<Room> CreateRoom([FromBody] string roomName)
+        public ActionResult<Room> CreateRoom([FromBody] string roomName, [FromServices] IGameTicker gameTicker)
         {
-            var room = roomRepository.CreateRoom(roomName);
+            var room = roomRepository.CreateRoom(roomName, gameTicker);
             return Ok(mapper.Map<RoomViewModel>(room));
         }
 

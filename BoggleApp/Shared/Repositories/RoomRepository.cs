@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BoggleApp.Shared.Shared;
 
 namespace BoggleApp.Shared.Repositories
 {
@@ -10,19 +11,18 @@ namespace BoggleApp.Shared.Repositories
 
         private string _globalRoomGuid;
 
-        public RoomRepository()
+        public RoomRepository(IGameTicker gameTicker)
         {
             _rooms = new Dictionary<string, Room>();
-            InitializeGlobalRoom();
+            InitializeGlobalRoom(gameTicker);
         }
 
-        private void InitializeGlobalRoom()
+        private void InitializeGlobalRoom(IGameTicker gameTicker)
         {
-            var globalRoom = CreateRoom("GlobalRoom");
+            var globalRoom = CreateRoom("GlobalRoom", gameTicker);
             _globalRoomGuid = globalRoom.Id;
 
-            CreateRoom("Another room");
- 
+            //CreateRoom("Another room");
         }
 
         public Room GetRoomById(string id)
@@ -37,9 +37,9 @@ namespace BoggleApp.Shared.Repositories
             return GetRoomById(_globalRoomGuid);
         }
 
-        public Room CreateRoom(string roomName)
+        public Room CreateRoom(string roomName, IGameTicker gameTicker)
         {
-            Room newRoom = new Room(roomName);
+            Room newRoom = new Room(roomName, gameTicker);
             _rooms.Add(newRoom.Id, newRoom);
             return newRoom;
         }
