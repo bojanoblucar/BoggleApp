@@ -3,29 +3,31 @@
 
 
     <div class="boggle-container row">
-        <div class="gameboard col-md-9">
+        <div class="gameboard col">
             <p>Hello @username. You are in room @room?.Name</p><br />
             <p>@message</p><br />
-            @if(room?.GameStatus != BoggleApp.Shared.Enums.RoomStatus.Initialized)
+            @if (room?.GameStatus != BoggleApp.Shared.Enums.RoomStatus.Initialized)
             {
                 <p>New game starting in:</p>
             }
-            <p>@time</p>
+            <div class="row justify-content-left" style="margin-bottom:17px; margin-left:0px;">
+                <GameTicker></GameTicker>
+            </div>
 
             <BoggleBoard @ref="BoggleBoard" RoomId="@RoomId"></BoggleBoard>
 
-
             <br />
 
-            <button class="button button-primary" type="button" @onclick="async() => await Shuffle()">Shuffle</button>
+            <button class="btn btn-lg btn-primary" type="button" @onclick="async() => await Shuffle()">Shuffle</button>
         </div>
+        <!--<div class="inputboard col-md-3"></div>-->
         <div class="infoboard col-md-3">
-        <p>Users currently in room:</p>
-        @foreach(var user in usersInGroup)
-        {
-             <div>@user.Username</div>
-        }
-    </div>
+            <p>Users currently in room:</p>
+            @foreach (var user in usersInGroup)
+            {
+                <div>@user.Username</div>
+            }
+        </div>
     </div>
 
 

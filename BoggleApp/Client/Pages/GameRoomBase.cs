@@ -27,8 +27,6 @@ namespace BoggleApp.Client.Pages
 
         protected string username = string.Empty;
 
-        protected string time = string.Empty;
-
         protected UserViewModel user = null;
 
         protected RoomViewModel room = null;
@@ -60,11 +58,7 @@ namespace BoggleApp.Client.Pages
                 StateHasChanged();
             });
 
-            HubConnection.On<string>("TimeLeft", timeRemained =>
-            {
-                WriteRemainingTime(int.Parse(timeRemained));
-            });
-
+  
             user = await SessionStorage.GetItemModified<UserViewModel>("username");
             username = user?.Username;
 
@@ -109,13 +103,6 @@ namespace BoggleApp.Client.Pages
             return Http.GetAsync($"game?user={userId}&roomId={roomId}");
         }
 
-        public void WriteRemainingTime(int timeRemained)
-        {
-            TimeSpan times = TimeSpan.FromSeconds(timeRemained);
 
-            time = times.ToString(@"mm\:ss");
-
-            StateHasChanged();
-        }
     }
 }

@@ -15,6 +15,8 @@ namespace BoggleApp.Client.Shared
 
         protected string[] letters;
 
+        protected string boardPadding = string.Empty;
+
         protected override void OnInitialized()
         {
             HubConnection.On<string[], RoomStatus>("ReceiveShuffled", (message, gameStatus) =>
@@ -44,6 +46,26 @@ namespace BoggleApp.Client.Shared
             string[] result = new string[4];
             Array.Copy(letters, rowNumber * 4, result, 0, 4);
             return result;
+        }
+
+        protected string GetBoardPadding(int rowNumber)
+        {
+            if (rowNumber == 0)
+                return "board-padding-top";
+            else if (rowNumber == 3)
+                return "board-padding-bottom";
+            else
+                return string.Empty;
+        }
+
+        protected string GetBorderRadius(int rowNumber)
+        {
+            if (rowNumber == 0)
+                return "board-border-radius-top";
+            else if (rowNumber == 3)
+                return "board-border-radius-bottom";
+            else
+                return string.Empty;
         }
 
         //public Action OnShuffled { get; set; }

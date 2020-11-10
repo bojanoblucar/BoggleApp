@@ -1,0 +1,9 @@
+﻿@inherits GameTickerBase
+
+@if (!string.IsNullOrEmpty(time))
+{
+    <div class="game-ticker-container" style="background:@background;">
+        @time
+    </div>
+}
+
