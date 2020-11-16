@@ -23,5 +23,8 @@
   <ItemGroup>
     <Folder Include="Extensions\" />
     <Folder Include="Utils\" />
+    <Folder Include="Services\" />
+    <Folder Include="wwwroot\js\" />
+    <Folder Include="Interop\" />
   </ItemGroup>
 </Project>

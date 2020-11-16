@@ -1,0 +1,12 @@
+﻿@inherits WordBase
+
+<div class="word" oncontextmenu="return false;"
+     @onclick="OnClick"
+     @onmouseup="OnMouseUp"
+     style="background:@background">
+    <span style="user-select:none">@Text.Value</span>
+    @if (Text.Status != BoggleApp.Shared.Enums.WordStatus.Initial)
+    {
+        <div class="word-points"><span style="user-select:none">@Text.Points</span></div>
+    }
+</div>

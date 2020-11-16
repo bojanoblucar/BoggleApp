@@ -103,7 +103,7 @@ namespace BoggleApp.Client.Pages
             await JoinRoom(user.Id, room.Id);
         }
 
-        Task JoinRoom(string username, string roomId) => HubConnection.SendAsync("JoinRoom", username, roomId);
+        Task JoinRoom(string username, string roomId) => HubConnection.SendAsync("JoinRoom", username, roomId, false);
 
         private async Task<RoomViewModel> GetRoom()
         {

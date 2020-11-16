@@ -1,0 +1,9 @@
+﻿@inherits WhiteboardBase
+
+    <div><p>Score: @Score</p></div>
+    <div class="boggle-whiteboard">
+        @foreach (var w in Words)
+        {
+            <Word Text="w" OnChipClick="OnChipClicked"></Word>
+        }
+    </div>

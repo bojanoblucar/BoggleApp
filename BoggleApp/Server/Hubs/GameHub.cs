@@ -33,9 +33,10 @@ namespace BoggleApp.Server.Hubs
         {
             var room = roomRepository.GetRoomById(roomId);
 
+            var currentStatus = room.GameStatus;
             var shuffled = room.ShuffleBoard();            
 
-            if (room.GameStatus == RoomStatus.Initialized)
+            if (currentStatus == RoomStatus.Initialized)
             {
                 await Clients.Group(roomId).SendAsync("ReceiveShuffled", shuffled, room.GameStatus);
 
@@ -46,7 +47,7 @@ namespace BoggleApp.Server.Hubs
             }
         }
 
-        public async Task JoinRoom(string userId, string roomId)
+        public async Task JoinRoom(string userId, string roomId, bool isReconnecting)
         {
             User user = usersRepository.GetById(userId);
             if (user.ConnectionId == null)
@@ -56,10 +57,10 @@ namespace BoggleApp.Server.Hubs
 
             if (!room.HasUser(user.Id))
             {
-                user.JoinRoom(room);
-
-                await AddToGroup(room, user.Username);
+                user.JoinRoom(room);        
             }
+
+            await AddClientToGroup(room, user.Username);
 
             await Clients.Caller.SendAsync("OnRoomJoin", room.Id);
         }
@@ -75,16 +76,18 @@ namespace BoggleApp.Server.Hubs
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             var user = usersRepository.GetByConnectionId(Context.ConnectionId);
+            user.ChangeConnectionStatus();
+
             foreach (var room in user.JoinedRooms)
             {
-                room.RemoveUser(user);
-                await RemoveFromGroup(user, room);          
+                //room.RemoveUser(user);
+                await RemoveClientFromGroup(user, room);          
             }
 
-            usersRepository.RemoveUser(Context.ConnectionId);
-        }
+            //usersRepository.RemoveUser(Context.ConnectionId);
+        } 
 
-        private async Task AddToGroup(Room room, string username)
+        private async Task AddClientToGroup(Room room, string username)
         {
             await Clients.Group(room.Id).SendAsync("UserJoined", $"{username} has joined the room {room.Name}.");
 
@@ -93,34 +96,13 @@ namespace BoggleApp.Server.Hubs
         }
 
 
-        private async Task RemoveFromGroup(User user, Room room)
+        private async Task RemoveClientFromGroup(User user, Room room)
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, room.Id);
 
-            await Clients.Group(room.Id).SendAsync("UserLeft", $"{user.Username} has left the room.");
+            //await Clients.Group(room.Id).SendAsync("UserLeft", $"{user.Username} has left the room.");
 
             await Clients.Group(room.Id).SendAsync("UsersInRoom", mapper.Map<IEnumerable<UserViewModel>>(room.Users));
-        }
-
-        public async Task Countdown(string roomId)
-        {
-            int remained = 3 * 60;
-            while(remained >= 0)
-            {                
-                await Task.Delay(1000);
-  
-                Console.WriteLine(remained);
-                await Clients.Group(roomId).SendAsync("CountdownEllapsed", remained.ToString());
-                remained -= 1;
-            }
-            
-        }
-
-
-        public void CountDownElapsed(int remained, string roomId)
-        {
-            Console.WriteLine(remained);
-            Clients.Group(roomId).SendAsync("CountdownEllapsed", remained.ToString());
         }
     }
 }

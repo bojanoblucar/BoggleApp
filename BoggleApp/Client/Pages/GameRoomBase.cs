@@ -6,10 +6,14 @@ using System.Threading.Tasks;
 using System.Timers;
 using BlazorBrowserStorage;
 using BoggleApp.Client.Extensions;
+using BoggleApp.Client.Interop;
 using BoggleApp.Client.Shared;
+using BoggleApp.Shared.Enums;
 using BoggleApp.Shared.ViewModels;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.JSInterop;
 
 namespace BoggleApp.Client.Pages
 {
@@ -27,9 +31,15 @@ namespace BoggleApp.Client.Pages
 
         protected string username = string.Empty;
 
+        protected bool inputDisabled = true;
+
+        protected bool shuffleButtonDisabled = false;
+
         protected UserViewModel user = null;
 
         protected RoomViewModel room = null;
+
+        protected string InputText = string.Empty;
 
         protected List<UserViewModel> usersInGroup = new List<UserViewModel>();
 
@@ -37,9 +47,13 @@ namespace BoggleApp.Client.Pages
 
         protected BoggleBoard BoggleBoard { get; set; }
 
+        protected GameTicker GameTicker { get; set; }
+
+        public Whiteboard Whiteboard { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
-            HubConnection.On<string>("UserJoined", (msg) =>
+            /*HubConnection.On<string>("UserJoined", (msg) =>
             {
                 message = msg;
                 StateHasChanged();
@@ -49,7 +63,7 @@ namespace BoggleApp.Client.Pages
             {
                 message = msg;
                 StateHasChanged();
-            });
+            });*/
 
             HubConnection.On<IEnumerable<UserViewModel>>("UsersInRoom", (users) =>
             {
@@ -68,28 +82,63 @@ namespace BoggleApp.Client.Pages
             }
             else
             {
+                if (!IsConnected)
+                {
+                    await HubConnection.SendAsync("JoinRoom", user.Id, RoomId, true);
+                }
+                
                 var response = await GetRoom(user.Id, RoomId);
                 if (!response.IsSuccessStatusCode)
                 {
                     NavigationManager.NavigateTo("/");
                 }
-
-                room = await response.Content.ReadFromJsonAsync<RoomViewModel>();
-
-                if (room.GameStatus == BoggleApp.Shared.Enums.RoomStatus.PlayMode)
+                else
                 {
-                    BoggleBoard.Peek(room);
+                    room = await response.Content.ReadFromJsonAsync<RoomViewModel>();
+
+                    if (room.GameStatus == RoomStatus.PlayMode)
+                    {
+                        BoggleBoard.Peek(room);
+                        inputDisabled = false;
+                        shuffleButtonDisabled = true;
+                        StateHasChanged();
+                    }
+
+                    await UsersInRoom();
+
+                    BoggleBoard.OnShuffled = OnShuffled;
+                    GameTicker.OnTimeUp = OnGameOver;
+
+                    StateHasChanged();
                 }
 
-                await UsersInRoom();
-
-                StateHasChanged();
+                
             }
         }
 
+
+        private void OnShuffled(RoomStatus status)
+        {
+            Whiteboard.Clear();
+            inputDisabled = false;
+            shuffleButtonDisabled = true;
+
+            StateHasChanged();
+        }
+
+        private void OnGameOver()
+        {
+            BoggleBoard.GameOver();
+            inputDisabled = true;
+            shuffleButtonDisabled = false;
+
+            StateHasChanged();
+        }
+
+
         public async Task Shuffle()
         {
-            await BoggleBoard.Shuffle();
+            await BoggleBoard.Shuffle();         
         }
 
         public Task UsersInRoom() => HubConnection.SendAsync("UsersInRoom", RoomId);
@@ -103,6 +152,14 @@ namespace BoggleApp.Client.Pages
             return Http.GetAsync($"game?user={userId}&roomId={roomId}");
         }
 
-
+        public void OnInputEntered(KeyboardEventArgs e)
+        {
+            if (e.Key == "Enter")
+            {                
+                Whiteboard.AddWord(InputText.Trim());
+                InputText = string.Empty;
+                StateHasChanged();
+            }
+        }
     }
 }

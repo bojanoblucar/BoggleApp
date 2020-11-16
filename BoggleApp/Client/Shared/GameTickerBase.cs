@@ -13,6 +13,8 @@ namespace BoggleApp.Client.Shared
 
         protected string background = "lightgreen";
 
+        public Action OnTimeUp { get; set; }
+
         protected override void OnInitialized()
         {
             HubConnection.On<string>("TimeLeft", timeRemained =>
@@ -28,6 +30,9 @@ namespace BoggleApp.Client.Shared
             time = times.ToString(@"mm\:ss");
 
             ChangeBackground(timeRemained);
+
+            if (timeRemained == 0)
+                OnTimeUp?.Invoke();
 
             StateHasChanged();
         }

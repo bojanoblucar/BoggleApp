@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Blazor.Extensions.Storage;
 using BlazorBrowserStorage;
+using BoggleApp.Client.Services;
+using BoggleApp.Shared.Shared;
 
 namespace BoggleApp.Client
 {
@@ -22,6 +24,9 @@ namespace BoggleApp.Client
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddStorage();
             builder.Services.AddBlazorBrowserStorage();
+
+            builder.Services.AddTransient<IGameScoreClientService, GameScoreService>();
+            builder.Services.AddTransient<GameRules>();
 
             await builder.Build().RunAsync();
         }
