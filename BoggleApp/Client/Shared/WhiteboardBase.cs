@@ -25,7 +25,7 @@ namespace BoggleApp.Client.Shared
             var inputs = text.Split();
             foreach (var input in inputs)
             {
-                if (!string.IsNullOrEmpty(input) && !Words.Any(w => w.Value.Equals(input.ToLower())))
+                if (!string.IsNullOrEmpty(input) && input.Length > 2 && !Words.Any(w => w.Value.Equals(input.ToLower())))
                     Words.Add(new BoggleApp.Shared.Shared.Word(input.ToLower()));
             }          
             StateHasChanged();

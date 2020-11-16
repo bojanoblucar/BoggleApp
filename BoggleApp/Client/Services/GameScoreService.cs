@@ -1,4 +1,5 @@
 ﻿using System;
+using BoggleApp.Shared.Enums;
 using BoggleApp.Shared.Shared;
 
 namespace BoggleApp.Client.Services
@@ -14,8 +15,11 @@ namespace BoggleApp.Client.Services
 
         public void ValidateWord(Word word)
         {
-            int pnt = gameRules.GetPoints(word.Value);
-            word.Points = pnt;
+            if (word.Status == WordStatus.Correct)
+            {
+                int pnt = gameRules.GetPoints(word.Value);
+                word.Points = pnt;
+            }
         }
     }
 }

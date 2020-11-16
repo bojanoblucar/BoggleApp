@@ -3,6 +3,7 @@
 <div class="word" oncontextmenu="return false;"
      @onclick="OnClick"
      @onmouseup="OnMouseUp"
+     @ondblclick="OnDblClick"
      style="background:@background">
     <span style="user-select:none">@Text.Value</span>
     @if (Text.Status != BoggleApp.Shared.Enums.WordStatus.Initial)

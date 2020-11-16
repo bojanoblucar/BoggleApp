@@ -1,4 +1,5 @@
 ﻿using System;
+using BoggleApp.Shared.Enums;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
@@ -30,10 +31,16 @@ namespace BoggleApp.Client.Shared
                 RejectAnswer();
         }
 
+        public void OnDblClick(MouseEventArgs e)
+        {
+            RejectAnswer();
+        }
+
 
         private void AcceptAnswer()
         {
             background = "yellowgreen";
+            Text.Status = WordStatus.Correct;
             OnChipClick?.Invoke(Text);
             StateHasChanged();
         }
@@ -41,7 +48,8 @@ namespace BoggleApp.Client.Shared
         protected void RejectAnswer()
         {
             background = "coral";
-            Text.Status = BoggleApp.Shared.Enums.WordStatus.False;
+            Text.Status = WordStatus.False;
+            OnChipClick?.Invoke(Text);
             StateHasChanged();
         }
         
