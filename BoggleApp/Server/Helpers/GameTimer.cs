@@ -2,6 +2,7 @@
 using System.Threading;
 using BoggleApp.Server.Hubs;
 using BoggleApp.Shared;
+using BoggleApp.Shared.Enums;
 using BoggleApp.Shared.Shared;
 using Microsoft.AspNetCore.SignalR;
 
@@ -13,7 +14,7 @@ namespace BoggleApp.Server.Helpers
 
         private Timer _timer;
 
-        private int remained = 180;
+        private int _remained;
 
         public GameTimer(IHubContext<GameHub> context)
         {
@@ -23,14 +24,15 @@ namespace BoggleApp.Server.Helpers
         public void StopCountdown()
         {
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
-            remained = 180;
+            //_remained = _initialTime;            
         }
 
-        public void StartCountdown(Room room)
+        public void StartCountdown(Room room, int countdownInSeconds)
         {
             if (_timer == null)
                 _timer = InitializeTimer(room);
 
+            _remained = countdownInSeconds;
             _timer.Change(0, 1000);
 
         }
@@ -39,15 +41,15 @@ namespace BoggleApp.Server.Helpers
         {
             return new Timer(async (status) =>
             {
-                if (remained > 0)
-                {
-                    await context.Clients.Group(room.Id).SendAsync("TimeLeft", remained.ToString());
-                    remained -= 1;
-                }
-                else
+                await context.Clients.Group(room.Id).SendAsync("TimeLeft", _remained.ToString());
+                _remained -= 1;
+                if (_remained < 0)
                 {
                     StopCountdown();
+                    room.GameStatus = RoomStatus.Initialized;
                 }
+                    
+ 
 
             }, null, Timeout.Infinite, Timeout.Infinite);
         }

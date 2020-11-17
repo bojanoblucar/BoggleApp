@@ -15,6 +15,8 @@ namespace BoggleApp.Shared
     {
         private Board _board;
 
+        private int _gameCountdown = 180;
+
         public List<User> Users { get; private set; }
 
         public string[] CurrentSetup { get; set; }
@@ -77,7 +79,7 @@ namespace BoggleApp.Shared
 
         private void StartTimer()
         {
-            gameTicker.StartCountdown(this);
+            gameTicker.StartCountdown(this, _gameCountdown);
         }
 
         private void StopTimer()

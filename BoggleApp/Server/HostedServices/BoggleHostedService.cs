@@ -14,8 +14,8 @@ namespace BoggleApp.Server.HostedServices
         private readonly IRoomRepository roomRepository;
         private readonly IUsersRepository usersRepository;
 
-        private readonly int _cleanUsersRepeatingInMin = 3;
-        private readonly int _cleanRoomsRepeatingInMin = 20;
+        private readonly int _cleanUsersRepeatingInMin = 30;
+        private readonly int _cleanRoomsRepeatingInMin = 60;
 
         public BoggleHostedService(IRoomRepository roomRepository, IUsersRepository usersRepository)
         {
