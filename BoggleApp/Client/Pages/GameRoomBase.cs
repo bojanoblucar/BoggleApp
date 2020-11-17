@@ -43,6 +43,8 @@ namespace BoggleApp.Client.Pages
 
         protected List<UserViewModel> usersInGroup = new List<UserViewModel>();
 
+        private RoomStatus _roomStatus = RoomStatus.Initialized;
+
         [CascadingParameter] public HubConnection HubConnection { get; set; }
 
         protected BoggleBoard BoggleBoard { get; set; }
@@ -121,7 +123,8 @@ namespace BoggleApp.Client.Pages
         {
             Whiteboard.Clear();
             inputDisabled = false;
-            shuffleButtonDisabled = true;
+            //shuffleButtonDisabled = true;
+            _roomStatus = status;
 
             StateHasChanged();
         }
@@ -131,6 +134,7 @@ namespace BoggleApp.Client.Pages
             BoggleBoard.GameOver();
             inputDisabled = true;
             shuffleButtonDisabled = false;
+            _roomStatus = RoomStatus.Initialized;
 
             StateHasChanged();
         }
@@ -138,7 +142,8 @@ namespace BoggleApp.Client.Pages
 
         public async Task Shuffle()
         {
-            await BoggleBoard.Shuffle();         
+            bool forceReload = _roomStatus == RoomStatus.PlayMode;
+            await BoggleBoard.Shuffle(forceReload);         
         }
 
         public Task UsersInRoom() => HubConnection.SendAsync("UsersInRoom", RoomId);

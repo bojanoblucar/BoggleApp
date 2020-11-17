@@ -10,5 +10,6 @@ namespace BoggleApp.Shared.Repositories
         Room GetGlobalRoom();
         Room GetRoomById(string guid);
         IEnumerable<Room> GetRooms();
+        void RemoveEmptyRooms();
     }
 }

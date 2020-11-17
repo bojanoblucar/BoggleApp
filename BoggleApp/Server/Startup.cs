@@ -39,7 +39,7 @@ namespace BoggleApp.Server
 
             services.AddSingleton<IRoomRepository, RoomRepository>();
             services.AddSingleton<IUsersRepository, UsersRepository>();
-            services.AddTransient<IGameTicker, GameTicker>();
+            services.AddTransient<IGameTicker, GameTimer>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

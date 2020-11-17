@@ -48,5 +48,16 @@ namespace BoggleApp.Shared.Repositories
         {
             return _rooms.Values.ToList();
         }
+
+        public void RemoveEmptyRooms()
+        {
+            var emptyRooms = _rooms.Values.Where(r => !r.Users.Any() && r.Id != _globalRoomGuid);
+            foreach (var room in emptyRooms)
+            {
+                _rooms.Remove(room.Id);
+            }
+
+            emptyRooms = null;
+        }
     }
 }

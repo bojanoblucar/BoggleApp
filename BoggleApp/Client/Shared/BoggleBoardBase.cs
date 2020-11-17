@@ -50,9 +50,9 @@ namespace BoggleApp.Client.Shared
 
         public Action<RoomStatus> OnShuffled { get; set; }
 
-        public Task Shuffle()
+        public Task Shuffle(bool forceReshuffle = false)
         {     
-            return HubConnection.SendAsync("Shuffle", RoomId);
+            return HubConnection.SendAsync("Shuffle", RoomId, forceReshuffle);
         }
 
         public void Peek(RoomViewModel room)
@@ -83,16 +83,6 @@ namespace BoggleApp.Client.Shared
                 return "board-padding-top";
             else if (rowNumber == 3)
                 return "board-padding-bottom";
-            else
-                return string.Empty;
-        }
-
-        protected string GetBorderRadius(int rowNumber)
-        {
-            if (rowNumber == 0)
-                return "board-border-radius-top";
-            else if (rowNumber == 3)
-                return "board-border-radius-bottom";
             else
                 return string.Empty;
         }

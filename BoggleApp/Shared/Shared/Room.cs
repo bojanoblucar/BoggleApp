@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using BoggleApp.Shared.Enums;
@@ -56,8 +57,14 @@ namespace BoggleApp.Shared
             return Users.Any(u => u.Id == userId);
         }
 
-        public string[] ShuffleBoard()
+        public string[] ShuffleBoard(bool forceResuffle = false)
         {
+            if (forceResuffle && GameStatus == RoomStatus.PlayMode)
+            {
+                GameStatus = RoomStatus.Initialized;
+                StopTimer();
+            }
+
             if (GameStatus == RoomStatus.Initialized)
             {
                 CurrentSetup = _board.Shuffle();
@@ -70,7 +77,17 @@ namespace BoggleApp.Shared
 
         private void StartTimer()
         {
-            gameTicker.UpdateTimeLeft(this);
+            gameTicker.StartCountdown(this);
+        }
+
+        private void StopTimer()
+        {
+            gameTicker.StopCountdown();
+        }
+
+        public IEnumerable<User> GetConnectedUsers()
+        {
+            return Users.Where(u => u.ConnectionStatus == ConnectionStatus.Connected).ToList();
         }
 
 

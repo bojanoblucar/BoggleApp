@@ -33,6 +33,8 @@ namespace BoggleApp.Shared
 
         public string Id { get; }
 
+        public DateTime? LastSeen { get; set; }
+
         public ConnectionStatus ConnectionStatus { get; set; } = ConnectionStatus.Connected;
 
         public void JoinRoom(Room room)
@@ -49,6 +51,11 @@ namespace BoggleApp.Shared
             if (ConnectionStatus == ConnectionStatus.Disconnected)
             {
                 ConnectionId = null;
+                LastSeen = DateTime.Now;
+            }
+            else
+            {
+                LastSeen = null;
             }
         }
     }

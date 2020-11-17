@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using AutoMapper;
@@ -29,12 +30,12 @@ namespace BoggleApp.Server.Hubs
             await Clients.All.SendAsync("ReceiveMessage", user, game);
         }
 
-        public async Task Shuffle(string roomId)
+        public async Task Shuffle(string roomId, bool forceReshuffle)
         {
             var room = roomRepository.GetRoomById(roomId);
 
             var currentStatus = room.GameStatus;
-            var shuffled = room.ShuffleBoard();            
+            var shuffled = room.ShuffleBoard(forceReshuffle);            
 
             if (currentStatus == RoomStatus.Initialized)
             {
@@ -69,7 +70,7 @@ namespace BoggleApp.Server.Hubs
         public async Task UsersInRoom(string roomId)
         {
             var room = roomRepository.GetRoomById(roomId);
-            await Clients.Group(roomId).SendAsync("UsersInRoom", mapper.Map<IEnumerable<UserViewModel>>(room.Users));
+            await Clients.Group(roomId).SendAsync("UsersInRoom", mapper.Map<IEnumerable<UserViewModel>>(room.GetConnectedUsers()));
         }
 
 
@@ -100,9 +101,7 @@ namespace BoggleApp.Server.Hubs
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, room.Id);
 
-            //await Clients.Group(room.Id).SendAsync("UserLeft", $"{user.Username} has left the room.");
-
-            await Clients.Group(room.Id).SendAsync("UsersInRoom", mapper.Map<IEnumerable<UserViewModel>>(room.Users));
+            await Clients.Group(room.Id).SendAsync("UsersInRoom", mapper.Map<IEnumerable<UserViewModel>>(room.GetConnectedUsers()));
         }
     }
 }
