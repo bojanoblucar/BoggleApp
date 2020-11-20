@@ -18,7 +18,7 @@
 
             <br />
                 <div class="form-group" style="margin-top:10px;">
-                    <input id="boggleWordInput" class="form-control" type="text" @bind="InputText" @onkeyup="OnInputEntered" disabled="@inputDisabled" />
+                    <input id="boggleWordInput" class="form-control" type="text" @bind-value="InputText" @onkeyup="OnInputEntered" disabled="@inputDisabled" />
                 </div>
             
         </div>
@@ -29,7 +29,7 @@
             <p>Users currently in room:</p>
             @foreach (var user in usersInGroup)
             {
-                <div>@user.Username - @user.ConnectionStatus.ToString()</div>
+                <div>@user.Username - @user.Score.ToString()</div>
             }
         </div>
     </div>

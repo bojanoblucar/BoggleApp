@@ -14,5 +14,7 @@ namespace BoggleApp.Shared.ViewModels
         public string Id { get; set; }
 
         public ConnectionStatus ConnectionStatus { get; set; }
+
+        public int Score { get; set; }
     }
 }

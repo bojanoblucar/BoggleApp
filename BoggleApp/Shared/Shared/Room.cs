@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Timers;
 using BoggleApp.Shared.Enums;
 using BoggleApp.Shared.Model;
 using BoggleApp.Shared.Shared;
@@ -15,34 +12,38 @@ namespace BoggleApp.Shared
     {
         private Board _board;
 
-        private int _gameCountdown = 180;
+        private readonly IGameTicker _gameTicker;
 
         public List<User> Users { get; private set; }
 
         public string[] CurrentSetup { get; set; }
 
-        public Room(string name, IGameTicker gameTicker)
+        public Leaderboard Leaderboard { get; private set; }
+
+        public RoomSettings Settings { get; private set; }
+
+        public string Name { get; private set; }
+
+        public string Id { get; private set; }
+
+        public Room(string name, IGameTicker gameTicker, RoomSettings roomSettings = null)
         {
             Name = name;
-            this.gameTicker = gameTicker;
-            _guid = Guid.NewGuid();
+            _gameTicker = gameTicker;
+            Id = Guid.NewGuid().ToString();
 
             _board = new Board(new GameSetup());
-            Users = new List<User>();   
-        }
-
-        private Guid _guid;
-        private readonly IGameTicker gameTicker;
-        
-
-        public string Id => _guid.ToString();
-        public string Name { get; }
+            Users = new List<User>();
+            Leaderboard = new Leaderboard();
+            Settings = roomSettings ?? new RoomSettings();
+        }        
 
         public void AddUser(User user)
         {
             if (!Users.Contains(user))
             {
                 Users.Add(user);
+                Leaderboard.AddUser(user);
             }
         }
 
@@ -51,6 +52,7 @@ namespace BoggleApp.Shared
             if (Users.Contains(user))
             {
                 Users.Remove(user);
+                Leaderboard.RemoveUser(user);
             }
         }
 
@@ -73,18 +75,18 @@ namespace BoggleApp.Shared
                 GameStatus = RoomStatus.PlayMode;
                 StartTimer();
             }
-                           
+
             return CurrentSetup;
         }
 
         private void StartTimer()
         {
-            gameTicker.StartCountdown(this, _gameCountdown);
+            _gameTicker.StartCountdown(this, Settings.GameDuration);
         }
 
         private void StopTimer()
         {
-            gameTicker.StopCountdown();
+            _gameTicker.StopCountdown();
         }
 
         public IEnumerable<User> GetConnectedUsers()

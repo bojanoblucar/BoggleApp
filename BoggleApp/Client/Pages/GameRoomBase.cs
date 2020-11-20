@@ -25,6 +25,8 @@ namespace BoggleApp.Client.Pages
 
         [Inject] public HttpClient Http { get; set; }
 
+        [Inject] public IJSRuntime JSRuntime { get; set; }
+
         [Parameter] public string RoomId { get; set; }
 
         protected string message;
@@ -110,6 +112,7 @@ namespace BoggleApp.Client.Pages
 
                     BoggleBoard.OnShuffled = OnShuffled;
                     GameTicker.OnTimeUp = OnGameOver;
+                    Whiteboard.OnScoreChanged = OnScoreChanged;
 
                     StateHasChanged();
                 }
@@ -121,21 +124,27 @@ namespace BoggleApp.Client.Pages
 
         private void OnShuffled(RoomStatus status)
         {
+            //await AddPoints();
             Whiteboard.Clear();
             inputDisabled = false;
-            //shuffleButtonDisabled = true;
             _roomStatus = status;
 
             StateHasChanged();
         }
 
-        private void OnGameOver()
+        private async void OnGameOver()
         {
             BoggleBoard.GameOver();
-            inputDisabled = true;
+            await DisableInput();
             shuffleButtonDisabled = false;
             _roomStatus = RoomStatus.Initialized;
 
+            StateHasChanged();
+        }
+
+        private async void OnScoreChanged(int newScore, int diff)
+        {
+            await AddPoints(diff);
             StateHasChanged();
         }
 
@@ -144,6 +153,11 @@ namespace BoggleApp.Client.Pages
         {
             bool forceReload = _roomStatus == RoomStatus.PlayMode;
             await BoggleBoard.Shuffle(forceReload);         
+        }
+
+        public async Task AddPoints(int points)
+        {
+            await HubConnection.SendAsync("AddPoints", user.Id, room.Id, points);
         }
 
         public Task UsersInRoom() => HubConnection.SendAsync("UsersInRoom", RoomId);
@@ -165,6 +179,14 @@ namespace BoggleApp.Client.Pages
                 InputText = string.Empty;
                 StateHasChanged();
             }
+        }
+
+        private async Task DisableInput()
+        {
+            InputText = string.Empty;
+            StateHasChanged();
+            await BoggleJsInterop.ClearWordInput(JSRuntime);
+            inputDisabled = true;
         }
     }
 }

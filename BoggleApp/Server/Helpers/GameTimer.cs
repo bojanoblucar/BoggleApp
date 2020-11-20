@@ -23,8 +23,7 @@ namespace BoggleApp.Server.Helpers
 
         public void StopCountdown()
         {
-            _timer.Change(Timeout.Infinite, Timeout.Infinite);
-            //_remained = _initialTime;            
+            _timer.Change(Timeout.Infinite, Timeout.Infinite);         
         }
 
         public void StartCountdown(Room room, int countdownInSeconds)
@@ -42,7 +41,9 @@ namespace BoggleApp.Server.Helpers
             return new Timer(async (status) =>
             {
                 await context.Clients.Group(room.Id).SendAsync("TimeLeft", _remained.ToString());
+
                 _remained -= 1;
+
                 if (_remained < 0)
                 {
                     StopCountdown();

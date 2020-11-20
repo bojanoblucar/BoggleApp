@@ -36,5 +36,10 @@ namespace BoggleApp.Client.Interop
                 
             await js.InvokeVoidAsync("setBoggleBoard", inputList);
         }
+
+        public static async Task ClearWordInput(IJSRuntime jS)
+        {
+            await jS.InvokeVoidAsync("clearBoggleWordInput");
+        }
     }
 }
