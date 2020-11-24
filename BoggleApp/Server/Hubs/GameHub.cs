@@ -65,6 +65,14 @@ namespace BoggleApp.Server.Hubs
             await Clients.Group(roomId).SendAsync("UsersInRoom", GetConnectedPlayers(room));
         }
 
+        public async Task ResetLeaderboard(string roomId)
+        {
+            var room = roomRepository.GetRoomById(roomId);
+            room.Leaderboard.ResetBoard();
+
+            await Clients.Group(roomId).SendAsync("UsersInRoom", GetConnectedPlayers(room));
+        }
+
 
 
         public async Task UsersInRoom(string roomId)

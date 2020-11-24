@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components.Web;
 
 namespace BoggleApp.Client.Shared
 {
-    public class WordBase : ComponentBase
+    public class WordChipBase : ComponentBase
     {
         [Parameter] public BoggleApp.Shared.Shared.Word Text { get; set; }
 

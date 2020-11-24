@@ -20,4 +20,9 @@ window.clearBoggleWordInput = () => {
     input.value = "";
 }
 
+window.focusBoggleWordInput = () => {
+    var input = document.getElementById("boggleWordInput");
+    input.focus();
+}
+
 

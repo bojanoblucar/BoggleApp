@@ -13,7 +13,7 @@ namespace BoggleApp.Client.Shared
     {
         [Inject] public IGameScoreClientService GameScoreClientService { get; set; }
 
-        protected List<BoggleApp.Shared.Shared.Word> Words = new List<BoggleApp.Shared.Shared.Word>();
+        protected List<Word> Words = new List<Word>();
 
         protected string Score { get; private set; }
 
@@ -34,7 +34,7 @@ namespace BoggleApp.Client.Shared
             foreach (var input in inputs)
             {
                 if (!string.IsNullOrEmpty(input) && input.Length > 2 && !Words.Any(w => w.Value.Equals(input.ToLower())))
-                    Words.Add(new BoggleApp.Shared.Shared.Word(input.ToLower()));
+                    Words.Add(new Word(input.ToLower()));
             }          
             StateHasChanged();
         }
@@ -52,7 +52,7 @@ namespace BoggleApp.Client.Shared
             StateHasChanged();
         }
 
-        public void OnChipClicked(BoggleApp.Shared.Shared.Word w)
+        public void OnChipClicked(Word w)
         {
             GameScoreClientService.ValidateWord(w);
             var newScore = GetPoints();

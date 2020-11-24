@@ -9,6 +9,7 @@ using BoggleApp.Client.Extensions;
 using BoggleApp.Client.Interop;
 using BoggleApp.Client.Shared;
 using BoggleApp.Shared.Enums;
+using BoggleApp.Shared.Helpers;
 using BoggleApp.Shared.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -29,13 +30,9 @@ namespace BoggleApp.Client.Pages
 
         [Parameter] public string RoomId { get; set; }
 
-        protected string message;
-
         protected string username = string.Empty;
 
         protected bool inputDisabled = true;
-
-        protected bool shuffleButtonDisabled = false;
 
         protected UserViewModel user = null;
 
@@ -57,18 +54,6 @@ namespace BoggleApp.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            /*HubConnection.On<string>("UserJoined", (msg) =>
-            {
-                message = msg;
-                StateHasChanged();
-            });
-
-            HubConnection.On<string>("UserLeft", (msg) =>
-            {
-                message = msg;
-                StateHasChanged();
-            });*/
-
             HubConnection.On<IEnumerable<UserViewModel>>("UsersInRoom", (users) =>
             {
                 usersInGroup.Clear();
@@ -90,53 +75,53 @@ namespace BoggleApp.Client.Pages
                 {
                     await HubConnection.SendAsync("JoinRoom", user.Id, RoomId, true);
                 }
-                
-                var response = await GetRoom(user.Id, RoomId);
-                if (!response.IsSuccessStatusCode)
+
+                var roomResult = await GetRoomAsync(user.Id, RoomId);
+                if (roomResult.IsValid)
                 {
-                    NavigationManager.NavigateTo("/");
+                    await InitializeRoom(roomResult.Value);
+                    StateHasChanged();
                 }
                 else
                 {
-                    room = await response.Content.ReadFromJsonAsync<RoomViewModel>();
-
-                    if (room.GameStatus == RoomStatus.PlayMode)
-                    {
-                        BoggleBoard.Peek(room);
-                        inputDisabled = false;
-                        shuffleButtonDisabled = true;
-                        StateHasChanged();
-                    }
-
-                    await UsersInRoom();
-
-                    BoggleBoard.OnShuffled = OnShuffled;
-                    GameTicker.OnTimeUp = OnGameOver;
-                    Whiteboard.OnScoreChanged = OnScoreChanged;
-
-                    StateHasChanged();
-                }
-
-                
+                    NavigationManager.NavigateTo("/");
+                }                         
             }
         }
 
 
-        private void OnShuffled(RoomStatus status)
+        private async Task InitializeRoom(RoomViewModel room)
         {
-            //await AddPoints();
+            if (room.GameStatus == RoomStatus.PlayMode)
+            {
+                BoggleBoard.Peek(room);
+                inputDisabled = false;
+                StateHasChanged();
+            }
+
+            await UsersInRoom();
+
+            BoggleBoard.OnShuffled = OnShuffled;
+            GameTicker.OnTimeUp = OnGameOver;
+            Whiteboard.OnScoreChanged = OnScoreChanged;
+        }
+
+
+        private async void OnShuffled(RoomStatus status)
+        {
             Whiteboard.Clear();
             inputDisabled = false;
-            _roomStatus = status;
+            _roomStatus = status;          
 
             StateHasChanged();
+
+            await BoggleJsInterop.FocusWordInput(JSRuntime);
         }
 
         private async void OnGameOver()
         {
             BoggleBoard.GameOver();
             await DisableInput();
-            shuffleButtonDisabled = false;
             _roomStatus = RoomStatus.Initialized;
 
             StateHasChanged();
@@ -166,9 +151,9 @@ namespace BoggleApp.Client.Pages
             HubConnection.State == HubConnectionState.Connected;
 
 
-        public Task<HttpResponseMessage> GetRoom(string userId, string roomId)
+        public Task<Result<RoomViewModel>> GetRoomAsync(string userId, string roomId)
         {
-            return Http.GetAsync($"game?user={userId}&roomId={roomId}");
+            return Http.GetAsResult<RoomViewModel>($"game?user={userId}&roomId={roomId}");
         }
 
         public void OnInputEntered(KeyboardEventArgs e)

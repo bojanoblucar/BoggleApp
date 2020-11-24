@@ -2,37 +2,44 @@
 @inherits GameRoomBase
 
 
-    <div class="boggle-container row">
-        <div class="gameboard col">
-            <p>Hello @username. You are in room @room?.Name</p><br />
+<div class="boggle-container row">
 
-            <div class="row justify-content-left" style="margin-bottom:17px; margin-left:0px;">
-                <GameTicker @ref="GameTicker"></GameTicker>
-            </div>
-
-            <BoggleBoard @ref="BoggleBoard" RoomId="@RoomId"></BoggleBoard>
-
-            <br />
-
-            <button class="btn btn-lg btn-primary" type="button" @onclick="async() => await Shuffle()" disabled="@shuffleButtonDisabled" >Shuffle</button>
-
-            <br />
-                <div class="form-group" style="margin-top:10px;">
-                    <input id="boggleWordInput" class="form-control" type="text" @bind-value="InputText" @onkeyup="OnInputEntered" disabled="@inputDisabled" />
-                </div>
-            
-        </div>
-        <div class="whiteboard col-md-3">
-            <Whiteboard @ref="Whiteboard"></Whiteboard>
-        </div>
-        <div class="infoboard col-md-3">
-            <p>Users currently in room:</p>
-            @foreach (var user in usersInGroup)
-            {
-                <div>@user.Username - @user.Score.ToString()</div>
-            }
-        </div>
+    <!--LEADERBOARD-->
+    <div class="infoboard col-md-3">
+        <p>Users currently in room:</p>
+        @foreach (var user in usersInGroup)
+        {
+            <div>@user.Username - @user.Score.ToString()</div>
+        }
     </div>
+
+    <!--BOGGLEBOARD-->
+    <div class="gameboard col">
+        <p>Hello @username. You are in room @room?.Name</p><br />
+
+        <div class="row justify-content-left" style="margin-bottom:17px; margin-left:0px;">
+            <GameTicker @ref="GameTicker"></GameTicker>
+        </div>
+
+        <BoggleBoard @ref="BoggleBoard" RoomId="@RoomId"></BoggleBoard>
+
+        <br />
+
+        <button class="btn btn-lg btn-primary" type="button" @onclick="async() => await Shuffle()">Shuffle</button>
+
+        <br />
+        <div class="form-group" style="margin-top:10px;">
+            <input id="boggleWordInput" class="form-control" type="text" @bind-value="InputText" @onkeyup="OnInputEntered" disabled="@inputDisabled" />
+        </div>
+
+    </div>
+
+    <!--WHITEBOARD-->
+    <div class="whiteboard col-md-3">
+        <Whiteboard @ref="Whiteboard"></Whiteboard>
+    </div>
+
+</div>
 
 
 @code

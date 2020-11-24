@@ -90,10 +90,10 @@ namespace BoggleApp.Client.Pages
         {
             if (!alreadyAssigned)
             {
-                var response = await Http.PostAsJsonAsync("game/user", username);
-                if (response.IsSuccessStatusCode)
+                var response = await Http.PostAsJsonWithResultAsync<UserViewModel, string>("game/user", username);
+                if (response.IsValid)
                 {
-                    user = await response.Content.ReadFromJsonAsync<UserViewModel>();
+                    user = response.Value;
                     await SessionStorage.SetItem<UserViewModel>("username", user);
                 }
 

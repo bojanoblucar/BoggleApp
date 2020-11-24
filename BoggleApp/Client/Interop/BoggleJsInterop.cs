@@ -41,5 +41,11 @@ namespace BoggleApp.Client.Interop
         {
             await jS.InvokeVoidAsync("clearBoggleWordInput");
         }
+
+        public static async Task FocusWordInput(IJSRuntime js)
+        {
+            await js.InvokeVoidAsync("focusBoggleWordInput");
+        }
+
     }
 }
