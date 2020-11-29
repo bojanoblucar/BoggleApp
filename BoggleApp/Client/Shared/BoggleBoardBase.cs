@@ -48,7 +48,7 @@ namespace BoggleApp.Client.Shared
             });
         }
 
-        public Action<RoomStatus> OnShuffled { get; set; }
+        [Parameter] public Action<RoomStatus> OnShuffled { get; set; }
 
         public Task Shuffle(bool forceReshuffle = false)
         {     

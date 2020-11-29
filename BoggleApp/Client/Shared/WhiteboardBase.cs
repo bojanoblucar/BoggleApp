@@ -17,7 +17,7 @@ namespace BoggleApp.Client.Shared
 
         protected string Score { get; private set; }
 
-        public Action<int, int> OnScoreChanged { get; set; }
+        [Parameter] public Action<int, int> OnScoreChanged { get; set; }
 
         private int _score;
 

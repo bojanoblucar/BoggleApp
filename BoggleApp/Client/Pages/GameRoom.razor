@@ -18,10 +18,10 @@
         <p>Hello @username. You are in room @room?.Name</p><br />
 
         <div class="row justify-content-left" style="margin-bottom:17px; margin-left:0px;">
-            <GameTicker @ref="GameTicker"></GameTicker>
+            <GameTicker @ref="GameTicker" OnTimeUp="OnGameOver"></GameTicker>
         </div>
 
-        <BoggleBoard @ref="BoggleBoard" RoomId="@RoomId"></BoggleBoard>
+        <BoggleBoard @ref="BoggleBoard" RoomId="@RoomId" OnShuffled="OnShuffled"></BoggleBoard>
 
         <br />
 
@@ -36,7 +36,7 @@
 
     <!--WHITEBOARD-->
     <div class="whiteboard col-md-3">
-        <Whiteboard @ref="Whiteboard"></Whiteboard>
+        <Whiteboard @ref="Whiteboard" OnScoreChanged="OnScoreChanged"></Whiteboard>
     </div>
 
 </div>
