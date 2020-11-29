@@ -67,7 +67,7 @@ namespace BoggleApp.Client.Pages
 
             if (user == null || string.IsNullOrEmpty(user?.Username))
             {
-                NavigationManager.NavigateTo("/");
+                NavigationManager.NavigateToIndex();
             }
             else
             {
@@ -84,7 +84,7 @@ namespace BoggleApp.Client.Pages
                 }
                 else
                 {
-                    NavigationManager.NavigateTo("/");
+                    NavigationManager.NavigateToIndex();
                 }                         
             }
         }
@@ -100,14 +100,10 @@ namespace BoggleApp.Client.Pages
             }
 
             await UsersInRoom();
-
-            BoggleBoard.OnShuffled = OnShuffled;
-            GameTicker.OnTimeUp = OnGameOver;
-            Whiteboard.OnScoreChanged = OnScoreChanged;
         }
 
-
-        private async void OnShuffled(RoomStatus status)
+        #region Child Components Events
+        protected async void OnShuffled(RoomStatus status)
         {
             Whiteboard.Clear();
             inputDisabled = false;
@@ -118,7 +114,7 @@ namespace BoggleApp.Client.Pages
             await BoggleJsInterop.FocusWordInput(JSRuntime);
         }
 
-        private async void OnGameOver()
+        protected async void OnGameOver()
         {
             BoggleBoard.GameOver();
             await DisableInput();
@@ -127,11 +123,12 @@ namespace BoggleApp.Client.Pages
             StateHasChanged();
         }
 
-        private async void OnScoreChanged(int newScore, int diff)
+        protected async void OnScoreChanged(int newScore, int diff)
         {
             await AddPoints(diff);
             StateHasChanged();
         }
+        #endregion
 
 
         public async Task Shuffle()

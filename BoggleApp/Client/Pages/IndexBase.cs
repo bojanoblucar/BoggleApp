@@ -68,7 +68,7 @@ namespace BoggleApp.Client.Pages
         {
             HubConnection.On<string>("OnRoomJoin", (guid) =>
             {
-                NavigationManager.NavigateTo($"room/{guid}");
+                NavigationManager.NavigateToRoom(guid);
             });
 
 
@@ -77,8 +77,6 @@ namespace BoggleApp.Client.Pages
             alreadyAssigned = user != null;
 
             await InitializeRooms();
-            //selectedRoom = rooms.First().Id;
-
         }
 
         protected async Task InitializeRooms()
@@ -94,7 +92,7 @@ namespace BoggleApp.Client.Pages
                 if (response.IsValid)
                 {
                     user = response.Value;
-                    await SessionStorage.SetItem<UserViewModel>("username", user);
+                    await SessionStorage.SetItem("username", user);
                 }
 
             }
@@ -111,11 +109,9 @@ namespace BoggleApp.Client.Pages
             {
                 if (!string.IsNullOrEmpty(newRoom))
                 {
-                    var response = await Http.PostAsJsonAsync("game/create", newRoom);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        return await response.Content.ReadFromJsonAsync<RoomViewModel>();
-                    }
+                    var response = await Http.PostAsJsonWithResultAsync<RoomViewModel, string>("game/create", newRoom);
+                    if (response.IsValid)
+                        return response.Value;
                 }
             }
             else

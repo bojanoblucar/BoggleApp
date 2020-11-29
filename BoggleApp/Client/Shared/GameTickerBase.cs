@@ -13,7 +13,7 @@ namespace BoggleApp.Client.Shared
 
         protected string background = "lightgreen";
 
-        public Action OnTimeUp { get; set; }
+        [Parameter] public Action OnTimeUp { get; set; }
 
         protected override void OnInitialized()
         {
