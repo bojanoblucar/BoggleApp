@@ -9,10 +9,18 @@
                 @foreach (var letter in GetBoardRow(i))
                 {
                     <div class="dice">
-                        <span class="dice-value">@letter</span>
+                        <div style="transform:rotate(@GetRotation(rotate))"><span class="dice-value">@letter</span></div>                       
                     </div>
                 }
             </div>
         }
     }
 </div>
+
+@code
+{
+    string GetRotation(int rotation)
+    {
+        return $"{RotateDice()}deg";
+    }
+}

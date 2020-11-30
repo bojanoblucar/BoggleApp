@@ -92,6 +92,7 @@ namespace BoggleApp.Client.Pages
 
         private async Task InitializeRoom(RoomViewModel room)
         {
+            this.room = room;
             if (room.GameStatus == RoomStatus.PlayMode)
             {
                 BoggleBoard.Peek(room);

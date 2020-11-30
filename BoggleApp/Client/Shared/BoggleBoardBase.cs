@@ -10,21 +10,44 @@ using BoggleApp.Client.Interop;
 
 namespace BoggleApp.Client.Shared
 {
+    public enum RotationAngle
+    {
+        One = 0,
+        Two = 90,
+        Three = 180,
+        Four = 270
+    }
+
+    class Dice
+    {
+        public string Letter { get; set; }
+
+        public int Rotation { get; set; } = 0;
+    }
+
     public class BoggleBoardBase : ComponentBase
     {
         [Inject] public IJSRuntime Js { get; set; }
 
         [Parameter] public string RoomId { get; set; }
 
+        [Parameter] public bool DiceRotation { get; set; } = false;
+
         [CascadingParameter] public HubConnection HubConnection { get; set; }
 
         protected string[] letters;
+
+        protected int rotate = 90;
 
         protected string boardPadding = string.Empty;
 
         protected double boardOpacity = 1;
 
         private bool inputFieldInitialized = false;
+
+        private Random rotationRandom;
+
+        private Array rotationValues = Enum.GetValues(typeof(RotationAngle));
 
         protected override void OnInitialized()
         {
@@ -35,6 +58,8 @@ namespace BoggleApp.Client.Shared
                     await BoggleJsInterop.InitializeInputField(Js);
                     inputFieldInitialized = true;
                 }
+
+                rotationRandom = new Random();           
 
                 boardOpacity = 1;
                 letters = message;
@@ -90,6 +115,11 @@ namespace BoggleApp.Client.Shared
         public bool IsInBoard(string letter)
         {
             return letters.Contains(letter);
+        }
+
+        protected int RotateDice()
+        {
+            return DiceRotation ? (int)rotationValues.GetValue(rotationRandom.Next(rotationValues.Length)) : 0;
         }
     }
 }
