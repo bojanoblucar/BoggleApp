@@ -49,6 +49,8 @@ namespace BoggleApp.Client.Shared
 
         private Array rotationValues = Enum.GetValues(typeof(RotationAngle));
 
+        public string[] CurrentShuffle => letters;
+
         protected override void OnInitialized()
         {
             HubConnection.On<string[], RoomStatus>("ReceiveShuffled", async (message, gameStatus) =>

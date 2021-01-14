@@ -6,23 +6,17 @@ namespace BoggleApp.Shared.Analysis
 {
     public class Node
     {
-        private readonly ReferencedNode referencedNode;
-
-        public Node(ReferencedNode referencedNode, int row, int column)
+        public Node(int row, int column)
         {
-            this.referencedNode = referencedNode;
             Row = row;
             Column = column;
             Children = new List<Node>();
         }
 
         [JsonIgnore]
-        public string Value => referencedNode.Value;
+        public string Value { get; set; }
 
-        public List<Node> Children { get; set; }
-
-        [JsonIgnore]
-        public Node Parent { get; set; }    
+        public List<Node> Children { get; set; } 
 
         public void AddChild(Node child)
         {
@@ -32,6 +26,11 @@ namespace BoggleApp.Shared.Analysis
         public int Row { get; set; }
 
         public int Column { get; set; }
+
+        public bool IsEqualPositionAs(Node node)
+        {
+            return Row == node.Row && Column == node.Column;
+        }
 
     }
 }

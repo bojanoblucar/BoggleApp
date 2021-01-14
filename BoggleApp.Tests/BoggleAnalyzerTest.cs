@@ -10,45 +10,38 @@ namespace BoggleApp.Tests
     public class BoggleAnalyzerTest
     {
         [Fact]
-        public void TestsolutionMatrixComposer()
+        public void TestBoggleAnalyzer()
         {
-            var array = new string[16] { "00", "01", "02", "03", "10", "11", "12", "13", "20", "21", "22", "23", "30", "31", "32", "33" };
+            var array = new string[16] { "a", "b", "c", "d",
+                                         "e", "f", "g", "h",
+                                         "i", "j", "k", "l",
+                                         "m", "nj", "o", "lj" };
 
-            int rowSize = 4;
-            int columnSize = 4;
-            var matrix = SolutionMatrixComposer.ComposeMatrix(array, rowSize, columnSize);
+            var analyzer = BoggleAnalyser.CreateForSolution(array);
 
-            for (int i = 0; i < rowSize; i++)
-            {
-                for (int j = 0; j < columnSize; j++)
-                {
-                    Assert.Equal($"{i}{j}", matrix[i, j]);
-                }
-            }
+            Assert.False(analyzer.IsSolution("afgg"));
+            Assert.True(analyzer.IsSolution("aefjkgcd"));
+            Assert.True(analyzer.IsSolution("gcdhkonjmiea"));
+            Assert.False(analyzer.IsSolution("gcdhkonmiea"));
+            Assert.False(analyzer.IsSolution("gcdhkonmieae"));
+            Assert.True(analyzer.IsSolution("ljonj"));
+            Assert.True(analyzer.IsSolution("ljol"));
         }
 
         [Fact]
-        public void TestBoggleAnalyzer()
+        public void TestBoggleTree()
         {
             var array = new string[16] { "a", "b", "c", "d",
                                          "e", "f", "g", "h",
                                          "i", "j", "k", "l",
                                          "m", "n", "o", "p" };
 
-            AnalyzerBuilder bulder = AnalyzerBuilder.GetInstance();
-            var analyzer = bulder.ForSolution(array);
+            var boggleTree = new BoggleTree();
+            boggleTree.InitializeTree(array);
 
-            Assert.False(analyzer.IsSolution("afgg"));
-            Assert.True(analyzer.IsSolution("aefjkgcd"));
-            Assert.True(analyzer.IsSolution("gcdhkonmiea"));
-        }
-
-        [Fact]
-        public void DeserializeTree()
-        {
-            var json = File.ReadAllText("boggleTree.txt");
-            var node = JsonConvert.DeserializeObject<List<Node>>(json);
-            Assert.NotNull(node);
+            var node = boggleTree.GetNode(0, 0);
+            Assert.Equal("a", node.Value);
+            Assert.Equal(3, node.Children.Count);
         }
     }
 }

@@ -8,6 +8,7 @@ using BlazorBrowserStorage;
 using BoggleApp.Client.Extensions;
 using BoggleApp.Client.Interop;
 using BoggleApp.Client.Shared;
+using BoggleApp.Shared.Analysis;
 using BoggleApp.Shared.Enums;
 using BoggleApp.Shared.Helpers;
 using BoggleApp.Shared.ViewModels;
@@ -43,6 +44,8 @@ namespace BoggleApp.Client.Pages
         protected List<UserViewModel> usersInGroup = new List<UserViewModel>();
 
         private RoomStatus _roomStatus = RoomStatus.Initialized;
+
+        private BoggleAnalyser _analyser;
 
         [CascadingParameter] public HubConnection HubConnection { get; set; }
 
@@ -108,10 +111,12 @@ namespace BoggleApp.Client.Pages
         {
             Whiteboard.Clear();
             inputDisabled = false;
-            _roomStatus = status;          
+            _roomStatus = status;
+            _analyser = BoggleAnalyser.CreateForSolution(BoggleBoard.CurrentShuffle);
 
             StateHasChanged();
 
+            await BoggleJsInterop.ClearWordInput(JSRuntime);
             await BoggleJsInterop.FocusWordInput(JSRuntime);
         }
 
@@ -157,10 +162,13 @@ namespace BoggleApp.Client.Pages
         public void OnInputEntered(KeyboardEventArgs e)
         {
             if (e.Key == "Enter")
-            {                
-                Whiteboard.AddWord(InputText.Trim());
-                InputText = string.Empty;
-                StateHasChanged();
+            {              
+                if (_analyser.IsSolution(InputText.Trim()))
+                {
+                    Whiteboard.AddWord(InputText.Trim());
+                    InputText = string.Empty;
+                    StateHasChanged();
+                }
             }
         }
 
