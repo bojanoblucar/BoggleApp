@@ -26,6 +26,22 @@ namespace BoggleApp.Tests
             Assert.False(analyzer.IsSolution("gcdhkonmieae"));
             Assert.True(analyzer.IsSolution("ljonj"));
             Assert.True(analyzer.IsSolution("ljol"));
+            Assert.True(analyzer.IsSolution("mie"));
+        }
+
+
+        [Fact]
+        public void TestBoggleAnalyzer2()
+        {
+            var array = new string[16] { "l", "m", "j", "t",
+                                         "v", "h", "u", "o",
+                                         "o", "s", "d", "e",
+                                         "o", "i", "s", "i" };
+
+            var analyzer = BoggleAnalyser.CreateForSolution(array);
+
+            Assert.True(analyzer.IsSolution("oov"));
+ 
         }
 
         [Fact]

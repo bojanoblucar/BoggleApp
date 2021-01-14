@@ -56,7 +56,7 @@ namespace BoggleApp.Shared.Analysis
                 };
 
                 var availablePaths = c.Children.Where(p => !newVisited.Any(v => v.IsEqualPositionAs(p))).ToList();
-                return IsSolution(candidate, availablePaths, newVisited);
+                if (IsSolution(candidate, availablePaths, newVisited)) return true;
             }
 
             return false;
