@@ -1,13 +1,18 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoggleApp.Server", "BoggleApp\Server\BoggleApp.Server.csproj", "{7B0759E7-1F37-4341-A03B-A393EA0DC404}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31019.35
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoggleApp.Server", "BoggleApp\Server\BoggleApp.Server.csproj", "{7B0759E7-1F37-4341-A03B-A393EA0DC404}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoggleApp.Client", "BoggleApp\Client\BoggleApp.Client.csproj", "{85640666-05A1-4533-943E-A9FC7FCA2357}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoggleApp.Client", "BoggleApp\Client\BoggleApp.Client.csproj", "{85640666-05A1-4533-943E-A9FC7FCA2357}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoggleApp.Shared", "BoggleApp\Shared\BoggleApp.Shared.csproj", "{D4D75AD9-6644-4FF9-B5E8-02D25CC94F5A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoggleApp.Shared", "BoggleApp\Shared\BoggleApp.Shared.csproj", "{D4D75AD9-6644-4FF9-B5E8-02D25CC94F5A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoggleApp.Tests", "BoggleApp.Tests\BoggleApp.Tests.csproj", "{82EE7EC4-13CC-40D5-B070-9271D674B350}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoggleApp.Tests", "BoggleApp.Tests\BoggleApp.Tests.csproj", "{82EE7EC4-13CC-40D5-B070-9271D674B350}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mobile", "Mobile", "{5A07B81C-9462-43A9-BBF0-FAFE4FDD9A6C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boggle.AndroidApp", "Boggle.AndroidApp\Boggle.AndroidApp.csproj", "{93FE62E7-31A0-4CF7-8E07-3BA773ABD8B1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,5 +36,20 @@ Global
 		{82EE7EC4-13CC-40D5-B070-9271D674B350}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82EE7EC4-13CC-40D5-B070-9271D674B350}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82EE7EC4-13CC-40D5-B070-9271D674B350}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93FE62E7-31A0-4CF7-8E07-3BA773ABD8B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93FE62E7-31A0-4CF7-8E07-3BA773ABD8B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93FE62E7-31A0-4CF7-8E07-3BA773ABD8B1}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{93FE62E7-31A0-4CF7-8E07-3BA773ABD8B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93FE62E7-31A0-4CF7-8E07-3BA773ABD8B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93FE62E7-31A0-4CF7-8E07-3BA773ABD8B1}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{93FE62E7-31A0-4CF7-8E07-3BA773ABD8B1} = {5A07B81C-9462-43A9-BBF0-FAFE4FDD9A6C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {042BBB90-BB8C-4EBE-9671-E75E574E3D45}
 	EndGlobalSection
 EndGlobal
