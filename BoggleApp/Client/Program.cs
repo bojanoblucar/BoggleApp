@@ -11,6 +11,11 @@ using Blazor.Extensions.Storage;
 using BlazorBrowserStorage;
 using BoggleApp.Client.Services;
 using BoggleApp.Shared.Shared;
+using BoggleApp.Client.HubHelpers;
+using BoggleApp.Shared.Api;
+using BoggleApp.Client.Api;
+using BoggleApp.Shared.Helpers;
+using BoggleApp.Game.Setup;
 
 namespace BoggleApp.Client
 {
@@ -25,6 +30,10 @@ namespace BoggleApp.Client
             builder.Services.AddStorage();
             builder.Services.AddBlazorBrowserStorage();
 
+
+            builder.Services.AddScoped<IUserContext, UserContext>();
+            builder.Services.AddSingleton<HubCommunicator>();
+            builder.Services.AddScoped<IGameApi, GameApi>();
             builder.Services.AddTransient<IGameScoreClientService, GameScoreService>();
             builder.Services.AddTransient<GameRules>();
 

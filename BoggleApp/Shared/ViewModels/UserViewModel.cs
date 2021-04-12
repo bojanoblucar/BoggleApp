@@ -1,5 +1,5 @@
-﻿using System;
-using BoggleApp.Shared.Enums;
+﻿using BoggleApp.Game.Enums;
+using System;
 
 namespace BoggleApp.Shared.ViewModels
 {

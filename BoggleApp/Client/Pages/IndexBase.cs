@@ -9,6 +9,11 @@ using BoggleApp.Shared.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using BoggleApp.Client.Extensions;
+using System.Net.Http.Headers;
+using BoggleApp.Client.HubHelpers;
+using BoggleApp.Shared.Api;
+using BoggleApp.Client.Services;
+using BoggleApp.Shared.Helpers;
 
 namespace BoggleApp.Client.Pages
 {
@@ -16,9 +21,9 @@ namespace BoggleApp.Client.Pages
     {
         [Inject] public NavigationManager NavigationManager { get; set; }
 
-        [Inject] public ISessionStorage SessionStorage { get; set; }
+        [Inject] public IGameApi Api { get; set; }
 
-        [Inject] public HttpClient Http { get; set; }
+        [Inject] public IUserContext UserContext { get; set; }
 
         protected string username;
         protected string newRoom;
@@ -26,6 +31,8 @@ namespace BoggleApp.Client.Pages
         protected bool alreadyAssigned;
         protected bool isRoomselectionDisabled = false;
         protected bool isJoinRoomButtonDisabled = true;
+
+        protected bool AlreadyAssigned => user != null;
 
         public string NewRoom
         {
@@ -62,64 +69,43 @@ namespace BoggleApp.Client.Pages
 
         protected IEnumerable<RoomViewModel> rooms = new List<RoomViewModel>();
 
-        [CascadingParameter] HubConnection HubConnection { get; set; }
-
         protected override async Task OnInitializedAsync()
         {
-            HubConnection.On<string>("OnRoomJoin", (guid) =>
-            {
-                NavigationManager.NavigateToRoom(guid);
-            });
-
-
-            user = await SessionStorage.GetItemModified<UserViewModel>("username");
+            user = await UserContext.GetUser();
             Username = user?.Username;
-            alreadyAssigned = user != null;
 
             await InitializeRooms();
         }
 
-        protected async Task InitializeRooms()
+        public async Task InitializeRooms()
         {
-            rooms = await Http.GetFromJsonAsync<IEnumerable<RoomViewModel>>("game/rooms");
+            rooms = await Api.GetRooms();
         }
 
         public async Task JoinGame()
         {
-            if (!alreadyAssigned)
-            {
-                var response = await Http.PostAsJsonWithResultAsync<UserViewModel, string>("game/user", username);
-                if (response.IsValid)
-                {
-                    user = response.Value;
-                    await SessionStorage.SetItem("username", user);
-                }
+            if (!AlreadyAssigned)
+            {   
+                var response = await Api.Login(username);
+                user = await UserContext.GetUser();
 
+                Api.OnJoinRoom((roomId) => NavigationManager.NavigateToRoom(roomId));
             }
 
             var room = await GetRoom();
-            await JoinRoom(user.Id, room.Id);
+            await Api.JoinRoom(user.Id, room.Id, false);
         }
-
-        Task JoinRoom(string username, string roomId) => HubConnection.SendAsync("JoinRoom", username, roomId, false);
 
         private async Task<RoomViewModel> GetRoom()
         {
-            if (selectedRoom == "-1")
+            if (selectedRoom == "-1" && !string.IsNullOrEmpty(newRoom))
             {
-                if (!string.IsNullOrEmpty(newRoom))
-                {
-                    var response = await Http.PostAsJsonWithResultAsync<RoomViewModel, string>("game/create", newRoom);
-                    if (response.IsValid)
-                        return response.Value;
-                }
+                return await Api.CreateRoom(newRoom);            
             }
             else
             {
                 return await Task.FromResult(rooms.Where(r => r.Id == selectedRoom).Single());
             }
-
-            return null;
         }
 
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BoggleApp.Shared.Shared;
+using BoggleApp.Game.Setup;
 
 namespace BoggleApp.Shared.Repositories
 {

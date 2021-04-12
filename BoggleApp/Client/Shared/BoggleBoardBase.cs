@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
-using BoggleApp.Shared.Enums;
 using BoggleApp.Shared.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using System.Linq;
 using Microsoft.JSInterop;
 using BoggleApp.Client.Interop;
+using BoggleApp.Shared.Api;
+using BoggleApp.Game.Enums;
 
 namespace BoggleApp.Client.Shared
 {
@@ -29,11 +30,11 @@ namespace BoggleApp.Client.Shared
     {
         [Inject] public IJSRuntime Js { get; set; }
 
+        [Inject] public IGameApi Api { get; set; }
+
         [Parameter] public string RoomId { get; set; }
 
         [Parameter] public bool DiceRotation { get; set; } = false;
-
-        [CascadingParameter] public HubConnection HubConnection { get; set; }
 
         protected string[] letters;
 
@@ -51,35 +52,29 @@ namespace BoggleApp.Client.Shared
 
         public string[] CurrentShuffle => letters;
 
-        protected override void OnInitialized()
+
+        public async Task InitializeBoard(string [] letters)
         {
-            HubConnection.On<string[], RoomStatus>("ReceiveShuffled", async (message, gameStatus) =>
+            if (!inputFieldInitialized)
             {
-                if (!inputFieldInitialized)
-                {
-                    await BoggleJsInterop.InitializeInputField(Js);
-                    inputFieldInitialized = true;
-                }
+                await BoggleJsInterop.InitializeInputField(Js);
+                inputFieldInitialized = true;
+            }
 
-                rotationRandom = new Random();           
+            rotationRandom = new Random();
 
-                boardOpacity = 1;
-                letters = message;
+            boardOpacity = 1;
+            this.letters = letters;
 
-                await BoggleJsInterop.SetBoggleBoardValues(Js, letters);
+            await BoggleJsInterop.SetBoggleBoardValues(Js, letters);
 
-                OnShuffled?.Invoke(gameStatus);
-
-                StateHasChanged();
-               
-            });
+            StateHasChanged();
         }
 
-        [Parameter] public Action<RoomStatus> OnShuffled { get; set; }
 
         public Task Shuffle(bool forceReshuffle = false)
-        {     
-            return HubConnection.SendAsync("Shuffle", RoomId, forceReshuffle);
+        {
+            return Api.Shuffle(RoomId, forceReshuffle);
         }
 
         public void Peek(RoomViewModel room)

@@ -1,5 +1,6 @@
 ﻿using System;
-using BoggleApp.Shared.Enums;
+using BoggleApp.Game.Enums;
+using BoggleApp.Game.Setup;
 using BoggleApp.Shared.Shared;
 
 namespace BoggleApp.Client.Services

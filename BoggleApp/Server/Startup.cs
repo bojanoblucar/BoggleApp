@@ -11,6 +11,10 @@ using BoggleApp.Shared.Repositories;
 using AutoMapper;
 using BoggleApp.Shared.Shared;
 using BoggleApp.Server.Helpers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using BoggleApp.Game.Setup;
 
 namespace BoggleApp.Server
 {
@@ -27,6 +31,25 @@ namespace BoggleApp.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    IssuerSigningKey = TokenGenerator.Key,
+                    // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
+                    ClockSkew = TimeSpan.Zero,
+                };
+            });
+
             services.AddAutoMapper(typeof(Startup));
             services.AddSignalR();
             services.AddControllersWithViews();

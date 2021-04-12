@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using BoggleApp.Game.Enums;
+using BoggleApp.Game.Setup;
 using BoggleApp.Server.Hubs;
-using BoggleApp.Shared;
-using BoggleApp.Shared.Enums;
-using BoggleApp.Shared.Repositories;
-using BoggleApp.Shared.Shared;
+using BoggleApp.Shared.Hub;
 using Microsoft.AspNetCore.SignalR;
 
 namespace BoggleApp.Server.Helpers
@@ -29,7 +28,7 @@ namespace BoggleApp.Server.Helpers
                 int remained = countdownInSeconds;
                 while (remained >= 0 && !_stopCounting)
                 {
-                    await _context.Clients.Group(room.Id).SendAsync("TimeLeft", remained.ToString());
+                    await _context.Clients.Group(room.Id).SendAsync(HubResponses.TimeLeft, remained.ToString());
                     await Task.Delay(1000);
                     
                     remained -= 1;

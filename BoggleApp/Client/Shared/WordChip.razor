@@ -6,7 +6,7 @@
      @ondblclick="OnDblClick"
      style="background:@background">
     <span style="user-select:none">@Text.Value</span>
-    @if (Text.Status != BoggleApp.Shared.Enums.WordStatus.Initial)
+    @if (Text.Status != BoggleApp.Game.Enums.WordStatus.Initial)
     {
         <div class="word-points"><span style="user-select:none">@Text.Points</span></div>
     }

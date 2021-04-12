@@ -1,4 +1,6 @@
-﻿namespace BoggleApp.Shared.Repositories
+﻿using BoggleApp.Game.Setup;
+
+namespace BoggleApp.Shared.Repositories
 {
     public interface IUsersRepository
     {

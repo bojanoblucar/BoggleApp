@@ -11,6 +11,18 @@ namespace BoggleApp.Client.Extensions
         {
             try
             {
+                return await storage.GetItem<T>(key).AsTask();
+            }
+            catch
+            {
+                return default;
+            }
+        }
+
+        public static async Task<T> GetItemModified<T>(this ILocalStorage storage, string key)
+        {
+            try
+            {
                 return await storage.GetItem<T>(key);
             }
             catch

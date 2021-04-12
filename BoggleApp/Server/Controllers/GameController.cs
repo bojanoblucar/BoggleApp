@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using BoggleApp.Server.Hubs;
-using BoggleApp.Shared;
+using BoggleApp.Game.Setup;
+using BoggleApp.Server.Helpers;
 using BoggleApp.Shared.Repositories;
-using BoggleApp.Shared.Shared;
 using BoggleApp.Shared.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -66,10 +65,16 @@ namespace BoggleApp.Server.Controllers
         }
 
         [HttpPost("user")]
-        public ActionResult<UserViewModel> CreateUser([FromBody] string username)
-        {
+        public ActionResult<LoginResponse> CreateUser([FromBody] string username)
+        {           
             var user = usersRepository.CreateUser(username);
-            return Ok(mapper.Map<UserViewModel>(user));
+            var token = TokenGenerator.GenerateToken(user);
+
+            return Ok(new LoginResponse()
+            {
+                User = mapper.Map<UserViewModel>(user),
+                Token = token
+            });
         }
 
     }

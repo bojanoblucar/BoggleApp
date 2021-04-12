@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 using System.Timers;
 using BlazorBrowserStorage;
 using BoggleApp.Client.Extensions;
+using BoggleApp.Client.HubHelpers;
 using BoggleApp.Client.Interop;
 using BoggleApp.Client.Shared;
-using BoggleApp.Shared.Analysis;
-using BoggleApp.Shared.Enums;
+using BoggleApp.Game.Enums;
+using BoggleApp.Game.Analysis;
+using BoggleApp.Shared.Api;
 using BoggleApp.Shared.Helpers;
 using BoggleApp.Shared.ViewModels;
 using Microsoft.AspNetCore.Components;
@@ -23,11 +25,11 @@ namespace BoggleApp.Client.Pages
     {
         [Inject] public NavigationManager NavigationManager { get; set; }
 
-        [Inject] public ISessionStorage SessionStorage { get; set; }
-
-        [Inject] public HttpClient Http { get; set; }
-
         [Inject] public IJSRuntime JSRuntime { get; set; }
+
+        [Inject] public IGameApi Api { get; set; }
+
+        [Inject] public IUserContext UserContext { get; set; }
 
         [Parameter] public string RoomId { get; set; }
 
@@ -47,8 +49,6 @@ namespace BoggleApp.Client.Pages
 
         private BoggleAnalyser _analyser;
 
-        [CascadingParameter] public HubConnection HubConnection { get; set; }
-
         protected BoggleBoard BoggleBoard { get; set; }
 
         protected GameTicker GameTicker { get; set; }
@@ -57,15 +57,25 @@ namespace BoggleApp.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            HubConnection.On<IEnumerable<UserViewModel>>("UsersInRoom", (users) =>
+            Api.OnUsersInRoom((users) =>
             {
                 usersInGroup.Clear();
                 usersInGroup.AddRange(users);
                 StateHasChanged();
             });
 
+            Api.OnShuffled(async (onshuffledResponse) => {
+                await BoggleBoard.InitializeBoard(onshuffledResponse.Letters);
+                OnShuffled(onshuffledResponse.RoomStatus);
+            });
+
+            Api.OnTimeLeft((timeRemained) =>
+            {
+                GameTicker.WriteRemainingTime(int.Parse(timeRemained));
+            });
+
   
-            user = await SessionStorage.GetItemModified<UserViewModel>("username");
+            user = await UserContext.GetUser();
             username = user?.Username;
 
             if (user == null || string.IsNullOrEmpty(user?.Username))
@@ -74,12 +84,12 @@ namespace BoggleApp.Client.Pages
             }
             else
             {
-                if (!IsConnected)
+                if (!Api.IsConnected)
                 {
-                    await HubConnection.SendAsync("JoinRoom", user.Id, RoomId, true);
+                    await Api.JoinRoom(user.Id, room.Id, true);
                 }
 
-                var roomResult = await GetRoomAsync(user.Id, RoomId);
+                var roomResult = await Api.GetRoom(user.Id, RoomId);
                 if (roomResult.IsValid)
                 {
                     await InitializeRoom(roomResult.Value);
@@ -103,11 +113,10 @@ namespace BoggleApp.Client.Pages
                 StateHasChanged();
             }
 
-            await UsersInRoom();
+            await Api.UsersInRoom(RoomId); //UsersInRoom();
         }
 
-        #region Child Components Events
-        protected async void OnShuffled(RoomStatus status)
+        private async void OnShuffled(RoomStatus status)
         {
             Whiteboard.Clear();
             inputDisabled = false;
@@ -120,6 +129,7 @@ namespace BoggleApp.Client.Pages
             await BoggleJsInterop.FocusWordInput(JSRuntime);
         }
 
+        #region Child Components Events
         protected async void OnGameOver()
         {
             BoggleBoard.GameOver();
@@ -131,7 +141,7 @@ namespace BoggleApp.Client.Pages
 
         protected async void OnScoreChanged(int newScore, int diff)
         {
-            await AddPoints(diff);
+            await Api.AddPointsToUser(user.Id, room.Id, diff);
             StateHasChanged();
         }
         #endregion
@@ -141,22 +151,6 @@ namespace BoggleApp.Client.Pages
         {
             bool forceReload = _roomStatus == RoomStatus.PlayMode;
             await BoggleBoard.Shuffle(forceReload);         
-        }
-
-        public async Task AddPoints(int points)
-        {
-            await HubConnection.SendAsync("AddPoints", user.Id, room.Id, points);
-        }
-
-        public Task UsersInRoom() => HubConnection.SendAsync("UsersInRoom", RoomId);
-
-        public bool IsConnected =>
-            HubConnection.State == HubConnectionState.Connected;
-
-
-        public Task<Result<RoomViewModel>> GetRoomAsync(string userId, string roomId)
-        {
-            return Http.GetAsResult<RoomViewModel>($"game?user={userId}&roomId={roomId}");
         }
 
         public void OnInputEntered(KeyboardEventArgs e)
@@ -181,3 +175,4 @@ namespace BoggleApp.Client.Pages
         }
     }
 }
+    

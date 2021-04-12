@@ -7,21 +7,12 @@ namespace BoggleApp.Client.Shared
 {
     public class GameTickerBase : ComponentBase
     {
-        [CascadingParameter] HubConnection HubConnection { get; set; }
-
         protected string time = string.Empty;
 
         protected string background = "lightgreen";
 
         [Parameter] public Action OnTimeUp { get; set; }
 
-        protected override void OnInitialized()
-        {
-            HubConnection.On<string>("TimeLeft", timeRemained =>
-            {
-                WriteRemainingTime(int.Parse(timeRemained));
-            });
-        }
 
         public void WriteRemainingTime(int timeRemained)
         {

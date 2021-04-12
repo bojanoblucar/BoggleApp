@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
+using BoggleApp.Game.Enums;
+using BoggleApp.Game.Setup;
 using BoggleApp.Server.Hubs;
-using BoggleApp.Shared;
-using BoggleApp.Shared.Enums;
-using BoggleApp.Shared.Shared;
+using BoggleApp.Shared.Hub;
 using Microsoft.AspNetCore.SignalR;
 
 namespace BoggleApp.Server.Helpers
@@ -40,7 +40,7 @@ namespace BoggleApp.Server.Helpers
         {
             return new Timer(async (status) =>
             {
-                await context.Clients.Group(room.Id).SendAsync("TimeLeft", _remained.ToString());
+                await context.Clients.Group(room.Id).SendAsync(HubResponses.TimeLeft, _remained.ToString());
 
                 _remained -= 1;
 

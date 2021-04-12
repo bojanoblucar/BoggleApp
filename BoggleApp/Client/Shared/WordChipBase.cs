@@ -1,5 +1,5 @@
 ﻿using System;
-using BoggleApp.Shared.Enums;
+using BoggleApp.Game.Enums;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 

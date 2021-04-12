@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using BoggleApp.Client.Services;
-using BoggleApp.Shared.Enums;
 using BoggleApp.Shared.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;

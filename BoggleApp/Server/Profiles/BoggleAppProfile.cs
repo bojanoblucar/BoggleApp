@@ -1,5 +1,6 @@
 ﻿using System;
 using AutoMapper;
+using BoggleApp.Game.Setup;
 using BoggleApp.Shared;
 using BoggleApp.Shared.Shared;
 using BoggleApp.Shared.ViewModels;

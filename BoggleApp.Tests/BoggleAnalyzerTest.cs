@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using BoggleApp.Shared.Analysis;
+using BoggleApp.Game.Analysis;
 using Newtonsoft.Json;
 using Xunit;
 
