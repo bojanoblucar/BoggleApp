@@ -21,6 +21,7 @@ using Microsoft.JSInterop;
 
 namespace BoggleApp.Client.Pages
 {
+    //comment
     public class GameRoomBase : ComponentBase
     {
         [Inject] public NavigationManager NavigationManager { get; set; }
